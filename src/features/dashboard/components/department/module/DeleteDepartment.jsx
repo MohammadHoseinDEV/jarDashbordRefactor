@@ -1,7 +1,10 @@
 import React from 'react';
+import { useDeleteDepartment } from '../../../../../hooks/depratment/department';
 
 function DeleteDepartment() {
-  return <div>DeleteDepartment</div>;
+  const deletedep = useDeleteDepartment();
+
+  return <div></div>;
 }
 
 export default DeleteDepartment;

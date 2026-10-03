@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form';
 import z from 'zod';
 import { useGetHolding } from '../../../../../hooks/holding/holding';
 import FormDepartmentJsx from '../template/FormDepartmentJsx';
+import {
+  useCreateDepartment,
+  useUpdateDepartment,
+} from '../../../../../hooks/depratment/department';
 
 const departmentSchema = z.object({
   name: z.string().trim().min(1, 'نام دپارتمان الزامی است'),
@@ -91,7 +95,27 @@ function FormDepartment({
     reset(initialState);
   };
 
-  const submitHandler = () => {};
+  const createdep = useCreateDepartment();
+  const updateDep = useUpdateDepartment();
+
+  const submitHandler = (data) => {
+    if (!selectedDepartment)
+      return createdep.mutate(data, {
+        onSuccess: () => {
+          closeHandler();
+        },
+      });
+
+    if (selectedDepartment)
+      return updateDep.mutate(
+        { id: selectedDepartment?.id, data },
+        {
+          onSuccess: () => {
+            closeHandler();
+          },
+        }
+      );
+  };
 
   return (
     <div
