@@ -4,8 +4,6 @@ import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import API_HOST from '../../../../API/api';
 
-// const API_BASE = 'http://172.16.68.238:5257/api/Auth';
-
 const initialState = {
   token: Cookies.get('token') || null,
 
@@ -34,10 +32,13 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ personnelCode, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_HOST}:5257/api/Auth/login`, {
-        personnelCode,
-        password,
-      });
+      const response = await axios.post(
+        `http://localhost:5257/api/Auth/login`,
+        {
+          personnelCode,
+          password,
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.response?.data?.message || 'خطا در ورود');
@@ -53,7 +54,7 @@ export const registerUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_HOST}:5257/api/Auth/register`,
+        `http://localhost:5257/api/Auth/register`,
         formData
       );
       return response.data;
@@ -73,7 +74,7 @@ export const forgetPasswordUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_HOST}:5257/api/Auth/forgot-password`,
+        `http://localhost:5257/api/Auth/forgot-password`,
         formData
       );
       return response.data;
@@ -93,7 +94,7 @@ export const resetPasswordUser = createAsyncThunk(
   async ({ newPassword, userId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_HOST}:5257/api/Auth/reset-password`,
+        `http://localhost:5257/api/Auth/reset-password`,
         {
           newPassword,
           userId,
@@ -116,7 +117,7 @@ export const fetchUserPermissions = createAsyncThunk(
   async (token, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${API_HOST}:5257/api/Auth/user-permissions`,
+        `http://localhost:5257/api/Auth/user-permissions`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

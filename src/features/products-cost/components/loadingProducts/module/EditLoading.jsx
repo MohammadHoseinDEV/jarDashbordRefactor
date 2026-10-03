@@ -74,7 +74,7 @@ function EditLoading({
     const none = { id: '', name: 'انتخاب  محصول' };
     return [
       none,
-      ...(product ?? []).map((p) => ({
+      ...(product?.items ?? []).map((p) => ({
         id: p.id,
         name: p.productName,
         code: p.productCode,
@@ -142,7 +142,6 @@ function EditLoading({
       }
     );
   };
-  
 
   return (
     <div

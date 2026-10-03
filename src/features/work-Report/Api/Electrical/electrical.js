@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import API_HOST from '../../../../../API/api';
 
-const BASE_API = `${API_HOST}:5260/api/ElectricalReport`;
+const BASE_API = `http://localhost:5273/api/ElectricalReport`;
 
 export const useCreateElectricalReports = () => {
   const { token } = useSelector((state) => state.auth);
@@ -62,10 +62,13 @@ export const useGetElectricalReports = ({
   hasWorkTasks,
   page,
   pageSize,
-}) => {
+} = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getElectrical = useQuery({
+    // TODO: بک‌اند /api/ElectricalReport هنوز پیاده‌سازی نشده.
+    // enabled: false تا وقتی که یکی از سه گزینه‌ی مطرح‌شده انتخاب و اجرا بشه.
+    enabled: false,
     queryKey: [
       'electrical',
       token,
@@ -100,28 +103,47 @@ export const useGetElectricalReports = ({
         )
       );
 
-      const res = await axios.get(`${BASE_API}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: cleanParams,
-      });
-      return res.data;
+      try {
+        const res = await axios.get(`${BASE_API}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: cleanParams,
+        });
+        return res.data;
+      } catch (e) {
+        // TODO: backend endpoint /api/ElectricalReport فعلا وجود نداره.
+        // تا زمانی که بک‌اند آماده بشه، خطا رو نادیده می‌گیریم و لیست خالی برمی‌گردونیم
+        // تا صفحه کرش نکنه و کنسول پر از ارور نشه.
+        console.warn('ElectricalReport endpoint not available yet:', e);
+        return { data: { items: [], totalPages: 1, totalCount: 0 } };
+      }
     },
+    retry: false,
     keepPreviousData: true,
   });
 
   return getElectrical;
 };
 
-export const useGetElectericalReportAll = () => {
+export const useGetElectericalReportAll = ({ enabled = false } = {}) => {
   const { token } = useSelector((state) => state.auth);
   const getElectericalAll = useQuery({
-    queryKey: ['electrical', token],
+    queryKey: ['electrical', token, 'all'],
     queryFn: async () => {
-      const res = await axios.get(`${BASE_API}/all`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
+      try {
+        const res = await axios.get(`${BASE_API}/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+      } catch (e) {
+        // TODO: بک‌اند این مسیر هنوز آماده نیست؛ فعلا نادیده گرفته میشه
+        console.warn('ElectricalReport/all endpoint not available yet:', e);
+        return { data: [] };
+      }
     },
+    enabled,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
   return getElectericalAll;
 };

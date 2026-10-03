@@ -6,7 +6,6 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1178px;
   --breakpoint-xl: 1280px;
-  --breakpoint-17: 1367px;
   --breakpoint-2xl: 1536px;
   --breakpoint-3xl: 1792px;
   --breakpoint-4xl: 2048px;
@@ -20,7 +19,21 @@
   /* ------------- */
   /* heigth */
 
+  
 }
+/* text-xs      → 0.75rem  (12px)
+text-sm      → 0.875rem (14px)
+text-base    → 1rem     (16px) ← پیش‌فرض
+text-lg      → 1.125rem (18px)
+text-xl      → 1.25rem  (20px)
+text-2xl     → 1.5rem   (24px)
+text-3xl     → 1.875rem (30px)
+text-4xl     → 2.25rem  (36px)
+text-5xl     → 3rem     (48px)
+text-6xl     → 3.75rem  (60px)
+text-7xl     → 4.5rem   (72px)
+text-8xl     → 6rem     (96px)
+text-9xl     → 8rem     (128px) */
 
 
 /* Chrome, Edge, Safari */
@@ -42,10 +55,10 @@ input[type='number']::-webkit-inner-spin-button {
 
 @layer components{
   .input-text{
-@apply 5xl:text-[20px] 5xl:placeholder:text-[20px] w-full rounded-xl bg-white/10 p-3 font-[Samim] text-[18px] text-white outline-none placeholder:font-[SamimBold] focus:font-[Samim]
+@apply 5xl:text-[20px]  5xl:placeholder:text-[20px] border border-white/10 bg-white/5 w-full rounded-xl  p-3 font-[Samim] text-[18px] text-white outline-none placeholder:font-[Samim] placeholder:text-[12px] focus:font-[Samim]
   }
   .input-number{
-@apply 5xl:text-[20px] 5xl:placeholder:text-[20px] w-full rounded-xl bg-white/10 p-3 font-[AvenirLTProMedium] text-[18px] text-white outline-none placeholder:font-[AvenirLTProMedium] focus:font-[AvenirLTProMedium]
+@apply 5xl:text-[20px] 5xl:placeholder:text-[20px] w-full rounded-xl  border border-white/10 bg-white/5  p-3 font-[AvenirLTProMedium] text-[18px] text-white outline-none placeholder:font-[AvenirLTProMedium] placeholder:text-[12px] focus:font-[AvenirLTProMedium]
    
   }
    .input-date{
@@ -64,3 +77,5 @@ input[type='number']::-webkit-inner-spin-button {
     }
   
 }
+
+

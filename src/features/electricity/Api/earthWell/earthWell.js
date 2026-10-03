@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import API_HOST from '../../../../../API/api';
 import { toast } from 'react-toastify';
 
-const BASE_API = `${API_HOST}:5273/api/MonthlyEarthWellInspection`;
+const BASE_API = `http://localhost:5273/api/MonthlyEarthWellInspection`;
 
 export const useGetEarthWell = ({ search, page, pageSize }) => {
   const { token } = useSelector((state) => state.auth);

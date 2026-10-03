@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import background from '../../../assets/images/background.jpg';
-import Logo from '../../../assets/images/logoJar.png';
+import Logo from '../../../assets/images/logoKaveh.jpg';
 
 import { SyncLoader } from 'react-spinners';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -38,14 +38,16 @@ function LoginPageJsx({
             <div className="absolute top-5 left-0 h-35 w-35 rounded-full bg-[#4e2b1f] blur-[60px]"></div>
             <div>
               <div className="flex items-center space-x-4">
-                <img src={Logo} alt="" width={50} className="mr-8 pt-8" />
-                <h1 className="pt-10 font-[SamimBold] text-[22px] font-bold text-white">
-                  دپارتمان جار و بطری
+                <img
+                  src={Logo}
+                  alt=""
+                  width={75}
+                  className="mt-5 mr-8 rounded-full"
+                />
+                <h1 className="pt-10 font-[SamimBold] text-[20px] font-bold text-white">
+                  سامانه یکپارچه گروه صنعتی کاوه
                 </h1>
               </div>
-              <p className="mr-9 pt-4 text-white/50">
-                سامانه یکپارچه کاویان جار ساچی
-              </p>
             </div>
             <div className="relative m-auto mt-10 size-70 rounded-full border border-[#5e3113]">
               <span className="absolute -top-2 left-34 size-3 rounded-full bg-[#a85117]"></span>
@@ -66,12 +68,13 @@ function LoginPageJsx({
             </div>
             <div className="mx-15">
               <div className="space-y-2 pt-8 text-center">
-                <h1 className="font-[SamimBold] text-[20px] font-bold text-white">
-                  به سامانه کاویان جار ساچی خوش آمدید
+                <h1 className="font-[SamimBold] text-[17px] font-bold text-white">
+                  به سامانه یکپارچه گروه صنعتی کاوه خوش آمدید
                 </h1>
                 <span className="font-[VazirLight] text-[18px] text-white/30">
                   برای دسترسی به پنل پرسنلی، وارد شوید یا ثبت نام کنید
                 </span>
+                <p></p>
               </div>
             </div>
             <div className="rigth-0 absolute bottom-5 h-35 w-35 rounded-full bg-[#4e2b1f] blur-[60px]"></div>

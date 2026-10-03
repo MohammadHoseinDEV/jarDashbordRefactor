@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const BASE_API = `${API_HOST}:5273/api/DailyAmperageReport`;
+const BASE_API = `http://localhost:5273/api/DailyAmperageReport`;
 
 // GET Dailyamp
 export const useGetDailyAmpReport = ({ search, page, pageSize }) => {

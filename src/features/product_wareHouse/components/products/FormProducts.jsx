@@ -15,7 +15,6 @@ function FormProducts({
   setSelectedProducts,
   seledtedProducts,
 }) {
-  console.log(seledtedProducts);
   const img = seledtedProducts?.productImagePath
     ? `${API_HOST}:5258/${seledtedProducts.productImagePath}`
     : null;

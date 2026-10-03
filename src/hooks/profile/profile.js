@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import API_HOST from '../../../API/api';
 
-const BASE_API = `${API_HOST}:5257/api/User/profile`;
+const BASE_API = `http://localhost:5257/api/User/profile`;
 
 const useGetProfile = () => {
   const { token } = useSelector((state) => state.auth);

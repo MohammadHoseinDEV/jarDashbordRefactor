@@ -8,7 +8,7 @@ import system from '../assets/images/system.png';
 import user from '../assets/images/users.png';
 import role from '../assets/images/role.png';
 import unit from '../assets/images/office.png';
-import { FaBolt } from 'react-icons/fa';
+import { FaBolt, FaHeading } from 'react-icons/fa';
 import { FaClipboardList } from 'react-icons/fa';
 import { FaCogs } from 'react-icons/fa';
 import { GiLaserPrecision } from 'react-icons/gi';
@@ -26,6 +26,7 @@ import { LuNotebookPen } from 'react-icons/lu';
 import { SlPrinter } from 'react-icons/sl';
 import { RiCustomerService2Fill } from 'react-icons/ri';
 import { GrDocumentTransfer } from 'react-icons/gr';
+import { FaD } from 'react-icons/fa6';
 
 export const MENU_ICON_MAP = {
   system,
@@ -54,6 +55,8 @@ export const MENU_ICON_MAP = {
   productCost: MdProductionQuantityLimits,
   customerManagement: RiCustomerService2Fill,
   salesTransfer: GrDocumentTransfer,
+  holding: FaHeading,
+  department: FaD,
 };
 
 export const MENU_ICON_OPTIONS = [
@@ -84,4 +87,6 @@ export const MENU_ICON_OPTIONS = [
   { key: 'productCost', label: 'خروج محصول' },
   { key: 'customerManagement', label: 'مدیریت مشتری ها' },
   { key: 'salesTransfer', label: 'ثبت حواله' },
+  { key: 'holding', label: 'هلدینگ' },
+  { key: 'department', label: 'دپارتمان' },
 ];

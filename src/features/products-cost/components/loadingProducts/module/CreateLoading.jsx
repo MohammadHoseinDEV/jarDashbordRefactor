@@ -81,7 +81,7 @@ function CreateLoading({ openCreateModal, setOpenCreateModal, profile }) {
     const none = { id: '', name: 'Product Selection' };
     return [
       none,
-      ...(product ?? []).map((p) => ({
+      ...(product?.items ?? [])?.map((p) => ({
         id: p.id,
         name: p.productName,
         code: p.productCode,

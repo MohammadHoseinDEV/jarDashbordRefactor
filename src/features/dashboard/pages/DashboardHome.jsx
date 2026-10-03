@@ -55,7 +55,7 @@ function DashboardHome() {
   );
 
   return (
-    <div className="flex justify-between">
+    <div className="no-scrollbar relative flex h-full justify-between">
       <style>{`
         @keyframes wiggle {
           0%, 90%, 100% { transform: rotate(0deg); }
@@ -290,22 +290,25 @@ function DashboardHome() {
       )} */}
 
       <div></div>
-      <div className="5xl:pt-2 flex justify-end rounded-2xl">
-        <div className="flex space-x-2 pl-5 text-white">
+      <div className="4xl:pt-2 flex justify-end rounded-2xl">
+        <div className="absolute top-2 flex space-x-2 pl-5 text-white">
           <span
             onClick={() => setOpenProfile(true)}
-            className="animate-wiggle-inline cursor-pointer rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
+            className="animate-wiggle-inline my-auto cursor-pointer rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
             style={{ animation: 'wiggle 3s ease-in-out infinite' }}
           >
             <CgProfile className="5xl:size-15 size-9 text-black" />
           </span>
           <span
             onClick={() => setOpenExit(true)}
-            className="animate-wiggle-inline flex cursor-pointer items-center justify-center rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
+            className="animate-wiggle-inline my-auto flex cursor-pointer items-center justify-center rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
             style={{ animation: 'wiggle 3s ease-in-out infinite' }}
           >
             <FiLogOut className="5xl:size-15 flex size-9 text-center text-black" />
           </span>
+        </div>
+        <div className="absolute bottom-0 left-0 my-auto w-100 items-center rounded-[10px] px-2 py-1 text-center font-[Vazirmatn] font-semibold text-white/50">
+          <p>پشتیبانی و توسعه واحد فناوری اطلاعات کاویان جار ساچی</p>
         </div>
 
         {/* exit Modal */}

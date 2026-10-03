@@ -32,7 +32,7 @@ function Sidebar() {
       }`}
     >
       {/* Toggle Icon */}
-      <div className="relative h-16 shrink-0 mb-2">
+      <div className="relative mb-2 h-16 shrink-0">
         <TiThMenuOutline
           className="5xl:text-[40px] 5xl:left-7 absolute top-0.5 left-6 my-3 cursor-pointer text-3xl text-white transition-all duration-500 hover:scale-110 hover:text-[#FF5C5C] max-2xl:left-3 max-md:fixed max-md:top-1 max-md:right-1 max-md:pb-1 max-md:text-[25px]"
           onClick={() => {

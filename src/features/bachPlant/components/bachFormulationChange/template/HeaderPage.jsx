@@ -72,6 +72,7 @@ function HeaderPage({
             </p>
           </div>
         </div>
+        
         {/* Add Reports & Excel */}
         <div className="mx-2 mt-1 flex items-center justify-between max-md:hidden">
           <div className="flex items-center pt-2 text-white max-2xl:pt-0">

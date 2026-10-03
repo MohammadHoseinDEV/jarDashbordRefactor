@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import API_HOST from '../../../API/api';
 
-const API_BASE = `${API_HOST}:5257/api/company`;
+const API_BASE = `http://localhost:5257/api/company`;
 
 export const companyApi = {
   list: async ({ token, page = 1, pageSize = 20, search }) => {

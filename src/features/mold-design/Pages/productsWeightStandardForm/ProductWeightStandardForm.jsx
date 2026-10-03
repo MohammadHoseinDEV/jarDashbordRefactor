@@ -183,6 +183,7 @@ function ProductWeightStandardForm() {
           setOpenFilterMobile={setOpenFilterMobile}
         />
 
+
         {isLoading ? (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center space-y-5">
             <HashLoader color="#ffffff" size={80} speedMultiplier={1.5} />
@@ -226,6 +227,7 @@ function ProductWeightStandardForm() {
         setOpenCreateModal={setOpenCreateModal}
       />
       <EditProductionWeightStandard
+      
         openEditModal={openEditModal}
         setOpenEditModal={setOpenEditModal}
         selectedProductWeigth={selectedProductWeigth}

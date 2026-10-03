@@ -6,6 +6,7 @@ import { HashLoader } from 'react-spinners';
 
 import { useGetProfile } from '../../../../hooks/profile/profile';
 import { useGetBachFormulation } from '../../Api/bachFormulationChange';
+import { useGetProducts } from '../../../product_wareHouse/Api/productsApi';
 
 const CreateBachFormulationChange = lazy(
   () =>

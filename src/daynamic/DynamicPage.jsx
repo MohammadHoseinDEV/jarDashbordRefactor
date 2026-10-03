@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import { MENU_URL } from '../permission/menuKeys';
 
 // AdminPages
 const AdminMenus = lazy(
@@ -24,9 +25,16 @@ const AdminOrganization = lazy(
 const AdminShift = lazy(
   () => import('../features/dashboard/pages/admin/shift/AdminShift')
 );
+const HoldingPage = lazy(
+  () => import('../features/dashboard/pages/admin/holding/HoldingPage')
+);
+const DepartmentPage = lazy(
+  () => import('../features/dashboard/pages/admin/department/DepartmentPage')
+);
 const AdminUnits = lazy(
   () => import('../features/dashboard/pages/admin/unit/AdminUnits')
 );
+// -------------------------------------------------------------------------
 
 // ProductsPage
 const CreateProducts = lazy(
@@ -162,63 +170,56 @@ const LoadingProducts = lazy(
 );
 
 const pagesMap = {
-  'admin-menus': AdminMenus,
-  'admin-units': AdminUnits,
-  'admin-roles': AdminRoles,
-  'admin-user': AdminUsers,
-  'admin-educations': AdminEducation,
-  'admin-job-position': AdminJobPosition,
-  'admin-organization': AdminOrganization,
-  'admin-shift': AdminShift,
-  'production-report': ProductionReport,
+  [MENU_URL.ADMIN_MENUS]: AdminMenus,
+  [MENU_URL.ADMIN_UNITS]: AdminUnits,
+  [MENU_URL.ADMIN_ROLES]: AdminRoles,
+  [MENU_URL.ADMIN_USER]: AdminUsers,
+  [MENU_URL.ADMIN_EDUCATIONS]: AdminEducation,
+  [MENU_URL.ADMIN_JOB_POSITION]: AdminJobPosition,
+  [MENU_URL.ADMIN_ORGANIZATION]: AdminOrganization,
+  [MENU_URL.ADMIN_SHIFT]: AdminShift,
+  [MENU_URL.ADMIN_HOLDING]: HoldingPage,
+  [MENU_URL.ADMIN_DEPARTMENT]: DepartmentPage,
 
-  // Work Reports
-  'machining-report': MachiningWorkReport,
-  'mecanicalBachplant-report': MechanicalBachplantReport,
-  'mechanical-report': MechanicalReport,
-  'facility-report': FacilityReport,
-  'polishing-report': PolishingReport,
-  'qualitycontrol&package-report': QualityControl,
-  'electrical-report': ElectricalReport,
-  'bachplant-report': BachplantReport,
+  [MENU_URL.PRODUCTION_REPORT]: ProductionReport,
 
-  // 5273
-  'upsBatteryVoltage-report': ElectricityUpsReport,
-  'DailyAmp-report': DailyAmpReport,
-  'controlChecklist-report': ControlChecklistReport,
-  'visit-earthWell': EarthWellReport,
-  'weekly-amp': WeeklyAmpReport,
-  'biweekly-amp': BiWeeklyAmpReport,
-  'line-change-checklist': LineChangeChecklist,
+  [MENU_URL.MACHINING_REPORT]: MachiningWorkReport,
+  [MENU_URL.MECHANICAL_BACHPLANT_REPORT]: MechanicalBachplantReport,
+  [MENU_URL.MECHANICAL_REPORT]: MechanicalReport,
+  [MENU_URL.FACILITY_REPORT]: FacilityReport,
+  [MENU_URL.POLISHING_REPORT]: PolishingReport,
+  [MENU_URL.QUALITY_CONTROL_PACKAGE_REPORT]: QualityControl,
+  [MENU_URL.ELECTRICAL_REPORT]: ElectricalReport,
+  [MENU_URL.BACHPLANT_REPORT]: BachplantReport,
 
-  // ProductsPage
-  'definition-of-product': CreateProducts,
+  [MENU_URL.UPS_BATTERY_VOLTAGE_REPORT]: ElectricityUpsReport,
+  [MENU_URL.DAILY_AMP_REPORT]: DailyAmpReport,
+  [MENU_URL.CONTROL_CHECKLIST_REPORT]: ControlChecklistReport,
+  [MENU_URL.VISIT_EARTH_WELL]: EarthWellReport,
+  [MENU_URL.WEEKLY_AMP]: WeeklyAmpReport,
+  [MENU_URL.BIWEEKLY_AMP]: BiWeeklyAmpReport,
+  [MENU_URL.LINE_CHANGE_CHECKLIST]: LineChangeChecklist,
 
-  // Products Planing
-  'final-notification-of-line-change': FinalLineChange,
+  [MENU_URL.DEFINITION_OF_PRODUCT]: CreateProducts,
+  [MENU_URL.FINAL_NOTIFICATION_OF_LINE_CHANGE]: FinalLineChange,
+  [MENU_URL.PERSONNEL_REPORTS]: PersonnelReports,
 
-  // Advanced Reports
-  'personnel-reports': PersonnelReports,
+  [MENU_URL.DESIGN_DATA_AND_DRAWING_VERIFICATION_FORM]: DesignDataForm,
+  [MENU_URL.MOLD_DRAWING_VERIFICATION_FORM]: MoldDarwingForm,
+  [MENU_URL.PRODUCT_WEIGHT_STANDARD_FORM]: ProductWeightStandardForm,
+  [MENU_URL.INTERNAL_DESIGN_PHASE_PLANNING]: InternalDesignPhasePlanning,
+  [MENU_URL.DESIGN_PHASE_PLANNING]: DesignPhasePlanning,
+  [MENU_URL.DESIGN_WORK_REQUEST_FORM]: DesignWorkRequest,
+  [MENU_URL.DESIGN_MEETING]: DesignMeeting,
+  [MENU_URL.MOLD_FIELD_VALIDATION_FORM]: MoldFieldValidation,
 
-  // 5271
-  'design-data-and-drawing-verification-form': DesignDataForm,
-  'mold-drawing-verification-form': MoldDarwingForm,
-  'product-weight-standard-form': ProductWeightStandardForm,
-  'internal-design-phase-planning': InternalDesignPhasePlanning,
-  'design-phase-planning': DesignPhasePlanning,
-  'design-work-request-form': DesignWorkRequest,
-  'design-meeting': DesignMeeting,
-  'mold-field-validation-form': MoldFieldValidation,
-  // 5274
-  'batch-formulation-change-report': BachFormulationChange,
-  // 5258
-  'report-products': ReportProducts,
-  'print-labels': PrintLabels,
-  'customer-management': CustomerManagment,
-  'sales-transfer': SalesTransfer,
+  [MENU_URL.BATCH_FORMULATION_CHANGE_REPORT]: BachFormulationChange,
 
-  // 5277
-  'loading-products': LoadingProducts,
+  [MENU_URL.REPORT_PRODUCTS]: ReportProducts,
+  [MENU_URL.PRINT_LABELS]: PrintLabels,
+  [MENU_URL.CUSTOMER_MANAGEMENT]: CustomerManagment,
+  [MENU_URL.SALES_TRANSFER]: SalesTransfer,
+  [MENU_URL.LOADING_PRODUCTS]: LoadingProducts,
 };
 
 export default function DynamicPage() {

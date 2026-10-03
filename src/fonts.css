@@ -1,9 +1,5 @@
 /* ---------- متن اصلی ---------- */
-@font-face {
-  font-family: 'IRANSans';
-  src: url('/fonts/AIranianSans.woff2') format('woff2');
-  font-display: swap;
-}
+
 @font-face {
   font-family: 'Samim';
   src: url('/fonts/Samim-FD.woff2') format('woff2');
@@ -19,6 +15,12 @@
 @font-face {
   font-family: 'SamimBold';
   src: url('/fonts/Samim-Bold-FD.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn.woff2') format('woff2');
   font-display: swap;
 }
 /* -------------------------------------- */
@@ -54,7 +56,7 @@
 /* ---------- استفاده از fallback برای متن ---------- */
 body {
   font-family:
-    'Samim', 'IRANSans', 'BYekan', 'VazirLight', 'Tahoma', 'Arial', sans-serif;
+    'Samim', 'VazirLight', 'Tahoma', 'Arial', sans-serif;
 }
 
 /* ---------- دکمه‌ها ---------- */
