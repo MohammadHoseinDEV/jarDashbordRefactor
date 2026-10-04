@@ -1,3 +1,7 @@
+import React, { useMemo } from 'react';
+import { IoCloseSharp } from 'react-icons/io5';
+import { PiFactory } from 'react-icons/pi';
+
 import {
   Combobox,
   ComboboxButton,
@@ -5,13 +9,10 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from '@headlessui/react';
-import React, { useMemo } from 'react';
-import { FaD } from 'react-icons/fa6';
-import { IoCloseSharp } from 'react-icons/io5';
 
-function FormDepartmentJsx({
+function CompanyFormJsx({
   closeHandler,
-  selectedDepartment,
+  selectedCompany,
   handleSubmit,
   submitHandler,
   register,
@@ -19,18 +20,19 @@ function FormDepartmentJsx({
   watch,
   setValue,
   isSubmitting,
-  getHolding,
-  filterholding,
-  selectedholding,
-  searchHolding,
-  setsearchHolding,
+  searchDepartment,
+  setSearchDepartment,
+  getDepartment,
+  filterDepartment,
+  selectedDepartment,
 }) {
   const isActive = watch('isActive');
-  
 
-  const activeholding = useMemo(
-    () => (filterholding ?? []).filter((c) => c.isActive === true),
-    [filterholding]
+  console.log(watch());
+
+  const activeDpartment = useMemo(
+    () => (filterDepartment ?? [])?.filter((d) => d.isActive === true),
+    [filterDepartment]
   );
 
   return (
@@ -38,12 +40,12 @@ function FormDepartmentJsx({
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <p className="rounded-full bg-white/15 p-3">
-            <FaD />
+            <PiFactory />
           </p>
           <h1 className="5xl:text-[35px] pr-1.5 font-[Vazirmatn] text-lg font-semibold">
-            {selectedDepartment
-              ? `ویرایش دپارتمان ${selectedDepartment?.name}`
-              : 'افزودن دپارتمان'}
+            {selectedCompany
+              ? `ویرایش شرکت ${selectedCompany?.name}`
+              : 'افزودن شرکت'}
           </h1>
         </div>
         <p
@@ -60,12 +62,12 @@ function FormDepartmentJsx({
         className="grid grid-cols-2 gap-5 space-y-5"
       >
         <div className="relative mt-5">
-          <label htmlFor="name">نام دپارتمان</label>
+          <label htmlFor="name">نام شرکت</label>
           <input
             type="text"
             id="name"
             autoComplete="off"
-            placeholder="نام دپارتمان را وارد کنید"
+            placeholder="نام شرکت را وارد کنید"
             {...register('name')}
             className={`input-text mt-1 caret-orange-500 ${errors?.name ? 'border-red-500' : ''}`}
           />
@@ -76,12 +78,12 @@ function FormDepartmentJsx({
           )}
         </div>
         <div className="relative mt-5">
-          <label htmlFor="code">کد دپارتمان</label>
+          <label htmlFor="code">کد شرکت</label>
           <input
             type="text"
             id="code"
             autoComplete="off"
-            placeholder="نام دپارتمان را وارد کنید"
+            placeholder="کد شرکت را وارد کنید"
             {...register('code')}
             className={`input-text mt-1 caret-orange-500 ${errors?.code ? 'border-red-500' : ''}`}
           />
@@ -92,23 +94,40 @@ function FormDepartmentJsx({
           )}
         </div>
         <div className="relative">
+          <label htmlFor="address">آدرس شرکت</label>
+          <input
+            type="text"
+            id="address"
+            autoComplete="off"
+            placeholder="آدرس شرکت را وارد کنید"
+            {...register('address')}
+            className={`input-text mt-1 caret-orange-500 ${errors?.address ? 'border-red-500' : ''}`}
+          />
+          {errors?.address && (
+            <p className="absolute top-18 right-5 rounded-xl bg-[#1c1c1c] px-1 text-xs text-red-500">
+              {`* ${errors?.address?.message}`}
+            </p>
+          )}
+        </div>
+        <div className="relative">
+          <label htmlFor="departmentId">دپارتمان</label>
           <div className="rounded-xl border border-white/10 text-[16px] font-semibold text-[Vazirmatn]">
             <Combobox
               immediate
-              value={selectedholding}
+              value={selectedDepartment}
               onChange={(value) =>
-                setValue('holdingId', value?.id || null, {
+                setValue('departmentId', value?.id || null, {
                   shouldValidate: true,
                   shouldDirty: true,
                 })
               }
-              onClose={() => setsearchHolding('')}
+              onClose={() => setSearchDepartment('')}
             >
               <div className="relative mt-1">
                 <ComboboxInput
-                  displayValue={(c) => c?.name ?? ''}
-                  onChange={(e) => setsearchHolding(e.target.value)}
-                  placeholder="انتخاب هلدینگ..."
+                  displayValue={(c) => (c?.id ? `${c.name} - ${c.code}` : '')}
+                  onChange={(e) => setSearchDepartment(e.target.value)}
+                  placeholder="انتخاب دپارتمان..."
                   autoComplete="off"
                   className="w-full rounded-xl bg-white/5 p-3 font-[Vazirmatn] text-white outline-none placeholder:text-white/50"
                 />
@@ -120,16 +139,16 @@ function FormDepartmentJsx({
                 anchor="bottom"
                 className="no-scrollbar z-999 max-h-60 w-(--input-width) rounded-xl bg-black/95 p-1 shadow-lg ring-1 ring-white/10 [--anchor-gap:8px]"
               >
-                {activeholding.length === 0 ? (
+                {activeDpartment.length === 0 ? (
                   <div className="p-3 text-white/70">موردی پیدا نشد</div>
                 ) : (
-                  activeholding.map((c) => (
+                  activeDpartment.map((c) => (
                     <ComboboxOption
                       key={c.id}
                       value={c}
                       className="cursor-pointer rounded-lg p-3 text-white data-focus:bg-white/10 data-selected:bg-white/15"
                     >
-                      {c.name}
+                      {c.name} - {c.code}
                     </ComboboxOption>
                   ))
                 )}
@@ -142,7 +161,8 @@ function FormDepartmentJsx({
             </p>
           )}
         </div>
-        <div className="">
+        <div className="col-span-2">
+          <label htmlFor="isActive">وضعیت شرکت</label>
           <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-3">
             <div>
               <p className="font-[Vazirmatn] text-sm font-semibold">وضعیت</p>
@@ -179,30 +199,9 @@ function FormDepartmentJsx({
             </div>
           </div>
         </div>
-        <div className="col-span-2 mt-6 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={closeHandler}
-            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
-          >
-            انصراف
-          </button>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting
-              ? 'در حال ارسال...'
-              : selectedDepartment
-                ? 'ویرایش منو'
-                : 'ایجاد منو'}
-          </button>
-        </div>
       </form>
     </div>
   );
 }
 
-export default FormDepartmentJsx;
+export default CompanyFormJsx;

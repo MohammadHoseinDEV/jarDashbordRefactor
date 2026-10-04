@@ -1,19 +1,22 @@
 import React from 'react';
-import ReportActionDepartment from '../module/ReportActionDepartment';
+import CompanyAction from '../module/CompanyAction';
+import { useGetDepartment } from '../../../../../hooks/depratment/department';
 
-function TableDepartmentPage({
-  dep,
-  selectedDepartment,
-  setselectedDepartment,
+function CompanyTable({
+  company,
+  selectedCompany,
+  setSelectedCompany,
   canEdit,
   openEdit,
   canDelete,
   openDelete,
   search,
 }) {
+  const { data: dep } = useGetDepartment();
+
+  const companies = company?.companies || [];
   const departments = dep?.departments || [];
 
-  
   return (
     <div>
       <div className="mt-2 hidden md:block">
@@ -24,10 +27,11 @@ function TableDepartmentPage({
                 ردیف
               </th>
               <th className="border-t border-b border-white/30">کد </th>
-              <th className="border-t border-b border-white/30">
-                نام دپارتمان
-              </th>
+              <th className="border-t border-b border-white/30">نام شرکت</th>
               <th className="border-t border-b border-white/30">وضعیت</th>
+              <th className="border-t border-b border-white/30">آدرس</th>
+              <th className="border-t border-b border-white/30">دپارتمان</th>
+              <th className="border-t border-b border-white/30">کد دپارتمان</th>
 
               <th className="rounded-tl-[10px] border-t border-b border-l border-white/30">
                 عملیات
@@ -35,8 +39,12 @@ function TableDepartmentPage({
             </tr>
           </thead>
           <tbody>
-            {departments.length > 0 ? (
-              departments.map((e, index) => {
+            {companies.length > 0 ? (
+              companies.map((e, index) => {
+                const department = departments?.find(
+                  (d) => d.id === e.departmentId
+                );
+
                 return (
                   <tr key={e.id} className="text-center">
                     <td className="size-5 border-b border-white/20">
@@ -59,11 +67,31 @@ function TableDepartmentPage({
                       </p>
                     </td>
 
+                    <td className="4xl:text-[28px] border-b border-white/20 font-[SamimBold] text-white md:text-xs 2xl:text-base">
+                      {e?.address}
+                    </td>
+                    <td className="4xl:text-[28px] border-b border-white/20 font-[SamimBold] text-white md:text-xs 2xl:text-base">
+                      {department?.isActive === true ? (
+                        <p>{department?.name}</p>
+                      ) : (
+                        'غیرفعال'
+                      )}
+                    </td>
+                    <td className="4xl:text-[28px] border-b border-white/20 md:text-[12px]">
+                      <p className="rounded-lg border border-[#32a3de]/40 bg-[#182228] font-[Vazirmatn] text-[#32a3de] 2xl:text-base">
+                        {department?.isActive === true ? (
+                          <span>{department?.code}</span>
+                        ) : (
+                          'غیرفعال'
+                        )}
+                      </p>
+                    </td>
+
                     <td className="border-b border-white/20">
-                      <ReportActionDepartment
+                      <CompanyAction
                         report={e}
-                        selected={selectedDepartment}
-                        setSelected={setselectedDepartment}
+                        selected={selectedCompany}
+                        setSelected={setSelectedCompany}
                         canEdit={canEdit}
                         openEdit={openEdit}
                         openDelete={openDelete}
@@ -81,7 +109,7 @@ function TableDepartmentPage({
                 >
                   {search
                     ? `نتیجه‌ای برای «${search}» پیدا نشد`
-                    : 'دپارتمانی ثبت نشده است'}
+                    : 'شرکتی ثبت نشده است'}
                 </td>
               </tr>
             )}
@@ -92,4 +120,4 @@ function TableDepartmentPage({
   );
 }
 
-export default TableDepartmentPage;
+export default CompanyTable;

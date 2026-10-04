@@ -1,22 +1,22 @@
 import React from 'react';
-import { FaClipboardList, FaDownload, FaFilter } from 'react-icons/fa';
+import { FaClipboardList } from 'react-icons/fa';
 import { FiBell, FiCalendar, FiSearch } from 'react-icons/fi';
 import { getToday, toShamsi } from '../../../../../Time/date';
-import { MdNoteAdd, MdNumbers } from 'react-icons/md';
+import { MdNoteAdd } from 'react-icons/md';
+import { TbBuildingFactory } from 'react-icons/tb';
 
-function HeaderDepartmentPage({
+function HeaderCompanyPage({
   openCreate,
   canCreate,
   search,
   setSearch,
   totalCount,
-  dep,
+  company,
   filterStatus,
   setFilterStatus,
   openFilterMobile,
   setOpenFilterMobile,
 }) {
-  
   return (
     <div className="w-full">
       {/* Title & Deatails */}
@@ -30,7 +30,7 @@ function HeaderDepartmentPage({
           </p>
           <p className="hidden w-3 opacity-0 max-md:block"></p>
           <p className="4xl:text-[25px] font-[Vazirmatn] text-xl font-semibold md:text-lg">
-            مدیریت دپارتمان
+            مدیریت شرکت ها
           </p>
           <p className="block pt-1 text-xl md:hidden">
             <FiBell />
@@ -64,7 +64,7 @@ function HeaderDepartmentPage({
             }`}
           >
             <p className="4xl:text-2xl relative cursor-pointer transition-all delay-150 duration-200 ease-in-out after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:bg-white/50 after:transition-all after:duration-700 after:ease-out hover:scale-105 hover:after:w-full md:text-sm">
-              افزودن دپارتمان
+              افزودن شرکت
             </p>
             <p className="4xl:text-[30px] text-[#d84f15] transition-all delay-150 duration-700 ease-in-out group-hover:rotate-360 md:text-lg 2xl:text-2xl">
               <MdNoteAdd />
@@ -75,7 +75,7 @@ function HeaderDepartmentPage({
           <input
             type="text"
             value={search}
-            placeholder="جستجو دپارتمان..."
+            placeholder="جستجو شرکت..."
             onChange={(e) => {
               setSearch(e.target.value);
             }}
@@ -83,15 +83,15 @@ function HeaderDepartmentPage({
           />
         </div>
         {/* <div className="flex items-center justify-end space-x-2 pt-2 pl-5 opacity-0">
-          <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
-            <FaDownload />
-            <span className="pr-2">خروجی اکسل</span>
-          </button>
-          <button className="flex items-center justify-center rounded-[10px] bg-[#f35714] px-4 py-2 text-[13px] text-white">
-            <FaFilter />
-            <span className="pr-2">فیلتر پیشرفته</span>
-          </button>
-        </div> */}
+                <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
+                  <FaDownload />
+                  <span className="pr-2">خروجی اکسل</span>
+                </button>
+                <button className="flex items-center justify-center rounded-[10px] bg-[#f35714] px-4 py-2 text-[13px] text-white">
+                  <FaFilter />
+                  <span className="pr-2">فیلتر پیشرفته</span>
+                </button>
+              </div> */}
       </div>
 
       {/* data reports */}
@@ -102,7 +102,7 @@ function HeaderDepartmentPage({
         >
           <div className="4xl:p-3 4xl:text-[30px] my-auto p-2 md:p-2 md:text-[16px] 2xl:text-[18px]">
             <p className="4xl:size-15 flex size-11 items-center justify-center rounded-[10px] bg-[#be4615]/25 text-[#be4615] md:size-8 2xl:size-10">
-              <MdNumbers />
+              <TbBuildingFactory />
             </p>
           </div>
           <p className="my-auto border-l-2 border-[#f35714]/70 md:h-10 2xl:h-13"></p>
@@ -111,7 +111,7 @@ function HeaderDepartmentPage({
               {totalCount}
             </p>
             <p className="4xl:text-[20px] text-white/60 md:text-sm 2xl:text-lg">
-              کل دپارتمان ها
+              کل شرکت ها
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ function HeaderDepartmentPage({
             <input
               type="text"
               value={search}
-              placeholder="جستجو در نقش ها ..."
+              placeholder="جستجو در شرکت ها ..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
@@ -143,8 +143,8 @@ function HeaderDepartmentPage({
                 : 'cursor-not-allowed bg-white/5 opacity-50'
             }`}
           >
-            <p className="4xl:text-2xl relative cursor-pointer font-[Vazirmatn] text-sm font-semibold md:text-sm">
-              افزودن دپارتمان
+            <p className="relative cursor-pointer font-[Vazirmatn] text-[10px] font-semibold md:text-sm">
+              افزودن شرکت
             </p>
             <p className="4xl:text-[30px] text-lg text-[#d84f15] md:text-lg 2xl:text-2xl">
               <MdNoteAdd />
@@ -158,7 +158,7 @@ function HeaderDepartmentPage({
               {filterStatus === 'all' && totalCount}
             </p>
             <p className="font-[Vazirmatn] text-sm font-semibold">
-              دپارتمان یافت شد
+              شرکت یافت شد
             </p>
           </div>
         </div>
@@ -167,4 +167,4 @@ function HeaderDepartmentPage({
   );
 }
 
-export default HeaderDepartmentPage;
+export default HeaderCompanyPage;

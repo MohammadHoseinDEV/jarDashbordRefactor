@@ -17,6 +17,7 @@ import { FaWrench } from 'react-icons/fa';
 import { GiPipes } from 'react-icons/gi';
 import {
   MdCheckCircle,
+  MdFactory,
   MdProductionQuantityLimits,
   MdWarehouse,
 } from 'react-icons/md';
@@ -37,8 +38,8 @@ export const MENU_ICON_MAP = {
   jobPosition,
   organization,
   shift,
-  company,
   unit,
+  company: MdFactory,
   electrical: FaBolt,
   report: FaClipboardList,
   production: FaCogs,
