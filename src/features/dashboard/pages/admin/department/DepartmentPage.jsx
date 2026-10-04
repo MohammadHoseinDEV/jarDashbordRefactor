@@ -23,16 +23,8 @@ function DepartmentPage() {
   const [openFilterMobile, setOpenFilterMobile] = useState(false);
   const [selectedDepartment, setselectedDepartment] = useState(null);
 
-  const {
-    canCreate,
-    canEdit,
-    canDelete,
-    canView,
-    guardCreate,
-    guardEdit,
-    guardDelete,
-    guardView,
-  } = usePermission(MENU_URL.ADMIN_ROLES, 'دپارتمان');
+  const { canCreate, canEdit, canDelete, guardCreate, guardEdit, guardDelete } =
+    usePermission(MENU_URL.ADMIN_DEPARTMENT, 'دپارتمان');
 
   const openCreate = guardCreate(() => {
     setIsModalOpen(true);
@@ -46,11 +38,6 @@ function DepartmentPage() {
   const openDelete = guardDelete((role) => {
     setselectedDepartment(role);
     setIsDeleteModalOpen(true);
-  });
-
-  const openView = guardView((role) => {
-    setselectedDepartment(role);
-    setIsAssignModalOpen(true);
   });
 
   const {

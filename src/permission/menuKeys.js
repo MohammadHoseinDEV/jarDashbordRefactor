@@ -10,6 +10,7 @@ export const MENU_URL = {
   ADMIN_SHIFT: 'admin-shift',
   ADMIN_HOLDING: 'admin-holding',
   ADMIN_DEPARTMENT: 'admin-department',
+  ADMIN_COMPANY: 'admin-companies',
 
   // Work Reports
   PRODUCTION_REPORT: 'production-report',

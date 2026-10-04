@@ -36,20 +36,26 @@ export const companyApi = {
   },
 };
 
-const useGetCompanies = () => {
+export const useGetCompanies = ({
+  search,
+  code,
+  departmentId,
+  isActive,
+  page,
+  pageSize,
+} = {}) => {
   const { token } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
 
   const getCompany = useQuery({
-    queryKey: ['company', token],
+    queryKey: ['company', search, code, departmentId, isActive, page, pageSize],
     queryFn: async () => {
       const res = await axios.get(`${API_BASE}`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { search, code, departmentId, isActive, page, pageSize },
       });
       return res.data;
     },
   });
   return getCompany;
 };
-
-export { useGetCompanies };
