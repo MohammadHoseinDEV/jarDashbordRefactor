@@ -78,7 +78,7 @@ function HeaderDepartmentPage({
             onChange={(e) => {
               setSearch(e.target.value);
             }}
-            className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[50vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
+            className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[50vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
           />
         </div>
         {/* <div className="flex items-center justify-end space-x-2 pt-2 pl-5 opacity-0">

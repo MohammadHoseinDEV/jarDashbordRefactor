@@ -6,6 +6,9 @@ import { useGetDepartment } from '../../../../../hooks/depratment/department';
 import { useGetProfile } from '../../../../../hooks/profile/profile';
 import HeaderDepartmentPage from '../../../components/department/template/HeaderDepartmentPage';
 import FormDepartment from '../../../components/department/module/FormDepartment';
+import DeleteDepartment from '../../../components/department/module/DeleteDepartment';
+import { HashLoader } from 'react-spinners';
+import TableDepartmentPage from '../../../components/department/template/TableDepartmentPage';
 
 function DepartmentPage() {
   const { token, menus: userMenus } = useSelector((state) => state.auth);
@@ -79,10 +82,43 @@ function DepartmentPage() {
           openFilterMobile={openFilterMobile}
           setOpenFilterMobile={setOpenFilterMobile}
         />
+
+        {isLoading ? (
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center space-y-5">
+            <HashLoader color="#ffffff" size={80} speedMultiplier={1.5} />
+            <p className="pt-10 text-[20px]">لطفا منتظر بمانید😎</p>
+          </div>
+        ) : isError ? (
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center space-y-5 text-[30px]">
+            خطا در دریافت اطلاعات 😟
+          </div>
+        ) : (
+          <div className="no-scrollbar 4xl:mt-5 flex min-h-0 w-full overflow-x-hidden overflow-y-auto">
+            <div className="mx-3 hidden sm:block md:w-full">
+              <TableDepartmentPage
+                dep={dep}
+                selectedDepartment={selectedDepartment}
+                setselectedDepartment={setselectedDepartment}
+                canEdit={canEdit}
+                openEdit={openEdit}
+                canDelete={canDelete}
+                openDelete={openDelete}
+                search={search}
+              />
+            </div>
+          </div>
+        )}
       </div>
       <FormDepartment
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        selectedDepartment={selectedDepartment}
+        setselectedDepartment={setselectedDepartment}
+      />
+
+      <DeleteDepartment
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
         selectedDepartment={selectedDepartment}
         setselectedDepartment={setselectedDepartment}
       />

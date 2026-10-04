@@ -45,8 +45,6 @@ function FormDepartment({
   });
   const formValues = watch();
 
-  console.log(formValues);
-
   const { data: hold } = useGetHolding();
 
   const getHolding = useMemo(() => {
@@ -80,12 +78,14 @@ function FormDepartment({
     if (!isModalOpen) return;
 
     if (selectedDepartment) {
-      return {
+      reset({
         name: selectedDepartment?.name,
         code: selectedDepartment?.code,
         holdingId: selectedDepartment?.holdingId,
         isActive: selectedDepartment?.isActive,
-      };
+      });
+    } else {
+      reset(initialState);
     }
   }, [selectedDepartment, isModalOpen, reset]);
 
