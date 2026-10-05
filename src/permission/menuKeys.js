@@ -1,7 +1,6 @@
 export const MENU_URL = {
   // Admin
   ADMIN_MENUS: 'admin-menus',
-  ADMIN_UNITS: 'admin-units',
   ADMIN_ROLES: 'admin-roles',
   ADMIN_USER: 'admin-user',
   ADMIN_EDUCATIONS: 'admin-educations',
@@ -11,6 +10,7 @@ export const MENU_URL = {
   ADMIN_HOLDING: 'admin-holding',
   ADMIN_DEPARTMENT: 'admin-department',
   ADMIN_COMPANY: 'admin-companies',
+  ADMIN_UNITS: 'admin-units',
 
   // Work Reports
   PRODUCTION_REPORT: 'production-report',

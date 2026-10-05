@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form';
 import z from 'zod';
 import { useGetDepartment } from '../../../../../hooks/depratment/department';
 import CompanyFormJsx from '../template/CompanyFormJsx';
+import {
+  useCreateCompany,
+  useUpdateCompany,
+} from '../../../../../hooks/company/companiApi';
 
 const companySchema = z.object({
   name: z.string().trim().min(1, 'نام شرکت الزامی است'),
@@ -98,7 +102,27 @@ function CompanyForm({
     [getDepartment, departmentId]
   );
 
-  const submitHandler = () => {};
+  const createCompany = useCreateCompany();
+  const updateCompany = useUpdateCompany();
+
+  const submitHandler = (data) => {
+    if (!selectedCompany)
+      return createCompany.mutate(data, {
+        onSuccess: () => {
+          closeHandler();
+        },
+      });
+
+    if (selectedCompany)
+      return updateCompany.mutate(
+        { id: selectedCompany?.id, data },
+        {
+          onSuccess: () => {
+            closeHandler();
+          },
+        }
+      );
+  };
 
   return (
     <div

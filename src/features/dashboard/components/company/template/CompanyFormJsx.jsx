@@ -28,8 +28,6 @@ function CompanyFormJsx({
 }) {
   const isActive = watch('isActive');
 
-  console.log(watch());
-
   const activeDpartment = useMemo(
     () => (filterDepartment ?? [])?.filter((d) => d.isActive === true),
     [filterDepartment]
@@ -198,6 +196,27 @@ function CompanyFormJsx({
               )}
             </div>
           </div>
+        </div>
+        <div className="col-span-2 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting
+              ? 'در حال ارسال...'
+              : selectedCompany
+                ? 'ویرایش شرکت'
+                : 'ایجاد شرکت'}
+          </button>
         </div>
       </form>
     </div>

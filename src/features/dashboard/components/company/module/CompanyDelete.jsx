@@ -1,21 +1,22 @@
 import React from 'react';
-import { useDeleteDepartment } from '../../../../../hooks/depratment/department';
+import { useDeleteCompany } from '../../../../../hooks/company/companiApi';
 import { IoCloseSharp } from 'react-icons/io5';
-import { FaD } from 'react-icons/fa6';
+import { PiFactory } from 'react-icons/pi';
 
-function DeleteDepartment({
+function CompanyDelete({
   isDeleteModalOpen,
   setIsDeleteModalOpen,
-  selectedDepartment,
-  setselectedDepartment,
+  selectedCompany,
+  setSelectedCompany,
 }) {
   const closeHandler = () => {
     setIsDeleteModalOpen(false);
   };
-  const deletedep = useDeleteDepartment();
+
+  const deleteCompany = useDeleteCompany();
 
   const deleteHandler = () => {
-    deletedep.mutate(selectedDepartment?.id, {
+    deleteCompany.mutate(selectedCompany?.id, {
       onSuccess: () => {
         closeHandler();
       },
@@ -44,10 +45,10 @@ function DeleteDepartment({
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <p className="4xl:text-3xl rounded-full bg-white/15 p-3">
-              <FaD />
+              <PiFactory />
             </p>
             <h1 className="4xl:text-3xl pr-1.5 font-[Vazirmatn] text-lg font-semibold md:text-xl">
-              حذف دپارتمان
+              حذف شرکت
             </h1>
           </div>
           <p
@@ -59,12 +60,13 @@ function DeleteDepartment({
             </span>
           </p>
         </div>
+
         <div className="4xl:text-3xl flex space-x-1 py-2 font-[Vazirmatn] text-sm md:text-lg lg:text-xl">
-          <p>آیا از حذف </p>
-          <p>{selectedDepartment?.name}</p>
+          <p>آیا از حذف شرکت</p>
+          <p>{selectedCompany?.name}</p>
           <p>اطمینان دارید؟</p>
         </div>
-        <div className="flex items-end justify-end space-x-2 py-3">
+        <div className="flex items-end justify-end space-x-2">
           <button
             onClick={closeHandler}
             className="4xl:text-xl cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
@@ -83,4 +85,4 @@ function DeleteDepartment({
   );
 }
 
-export default DeleteDepartment;
+export default CompanyDelete;
