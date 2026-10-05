@@ -3,23 +3,19 @@ import { FaClipboardList } from 'react-icons/fa';
 import { FiBell, FiCalendar, FiSearch } from 'react-icons/fi';
 import { getToday, toShamsi } from '../../../../../Time/date';
 import { MdNoteAdd } from 'react-icons/md';
-import { TbBuildingFactory } from 'react-icons/tb';
+import { RiCommunityLine } from 'react-icons/ri';
 
-function HeaderCompanyPage({
+function UnitHeader({
   openCreate,
   canCreate,
   search,
   setSearch,
   totalCount,
-  company,
+  unit,
   filterStatus,
   setFilterStatus,
   openFilterMobile,
   setOpenFilterMobile,
-  dep,
-  departmentId,
-  setdepartmentId,
-  filterglobalAccess,
 }) {
   return (
     <div className="w-full">
@@ -34,7 +30,7 @@ function HeaderCompanyPage({
           </p>
           <p className="hidden w-3 opacity-0 max-md:block"></p>
           <p className="4xl:text-[25px] font-[Vazirmatn] text-xl font-semibold md:text-lg">
-            مدیریت شرکت ها
+            مدیریت واحد
           </p>
           <p className="block pt-1 text-xl md:hidden">
             <FiBell />
@@ -68,46 +64,24 @@ function HeaderCompanyPage({
             }`}
           >
             <p className="4xl:text-2xl relative cursor-pointer transition-all delay-150 duration-200 ease-in-out after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:bg-white/50 after:transition-all after:duration-700 after:ease-out hover:scale-105 hover:after:w-full md:text-sm">
-              افزودن شرکت
+              افزودن واحد
             </p>
             <p className="4xl:text-[30px] text-[#d84f15] transition-all delay-150 duration-700 ease-in-out group-hover:rotate-360 md:text-lg 2xl:text-2xl">
               <MdNoteAdd />
             </p>
           </button>
         </div>
-        <div className="4xl:mx-2 flex items-center gap-2">
-          {filterglobalAccess && (
-            <div>
-              <select
-                name="departmentId"
-                value={departmentId}
-                onChange={(e) => {
-                  setdepartmentId(e.target.value);
-                }}
-                className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[40vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
-              >
-                <option value="">همه دپارتمان ها</option>
-                {dep?.departments?.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} - {d.code}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <input
-              type="text"
-              value={search}
-              placeholder="جستجو شرکت..."
-              onChange={(e) => {
-                setSearch(e.target.value);
-              }}
-              className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[40vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
-            />
-          </div>
+        <div className="4xl:mx-2">
+          <input
+            type="text"
+            value={search}
+            placeholder="جستجو واحد..."
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[50vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
+          />
         </div>
-
         {/* <div className="flex items-center justify-end space-x-2 pt-2 pl-5 opacity-0">
                 <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
                   <FaDownload />
@@ -128,7 +102,7 @@ function HeaderCompanyPage({
         >
           <div className="4xl:p-3 4xl:text-[30px] my-auto p-2 md:p-2 md:text-[16px] 2xl:text-[18px]">
             <p className="4xl:size-15 flex size-11 items-center justify-center rounded-[10px] bg-[#be4615]/25 text-[#be4615] md:size-8 2xl:size-10">
-              <TbBuildingFactory />
+              <RiCommunityLine />
             </p>
           </div>
           <p className="my-auto border-l-2 border-[#f35714]/70 md:h-10 2xl:h-13"></p>
@@ -137,7 +111,7 @@ function HeaderCompanyPage({
               {totalCount}
             </p>
             <p className="4xl:text-[20px] text-white/60 md:text-sm 2xl:text-lg">
-              کل شرکت ها
+              کل واحد ها
             </p>
           </div>
         </div>
@@ -151,7 +125,7 @@ function HeaderCompanyPage({
             <input
               type="text"
               value={search}
-              placeholder="جستجو در شرکت ها ..."
+              placeholder="جستجو در واحد ها ..."
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
@@ -169,8 +143,8 @@ function HeaderCompanyPage({
                 : 'cursor-not-allowed bg-white/5 opacity-50'
             }`}
           >
-            <p className="relative cursor-pointer font-[Vazirmatn] text-[10px] font-semibold md:text-sm">
-              افزودن شرکت
+            <p className="4xl:text-2xl relative cursor-pointer font-[Vazirmatn] text-xs font-semibold md:text-sm">
+              افزودن واحد
             </p>
             <p className="4xl:text-[30px] text-lg text-[#d84f15] md:text-lg 2xl:text-2xl">
               <MdNoteAdd />
@@ -184,7 +158,7 @@ function HeaderCompanyPage({
               {filterStatus === 'all' && totalCount}
             </p>
             <p className="font-[Vazirmatn] text-sm font-semibold">
-              شرکت یافت شد
+              واحد یافت شد
             </p>
           </div>
         </div>
@@ -193,4 +167,4 @@ function HeaderCompanyPage({
   );
 }
 
-export default HeaderCompanyPage;
+export default UnitHeader;

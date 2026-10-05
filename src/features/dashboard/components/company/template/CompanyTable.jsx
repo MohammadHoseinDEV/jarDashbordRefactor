@@ -62,9 +62,17 @@ function CompanyTable({
                     </td>
 
                     <td className="4xl:text-[28px] border-b border-white/20 md:text-[12px]">
-                      <p className="rounded-lg border border-[#32a3de]/40 bg-[#182228] font-[Vazirmatn] text-[#32a3de] 2xl:text-base">
-                        {e?.isActive === true ? 'فعال' : 'غیرفعال'}
-                      </p>
+                      <div className="font-[Vazirmatn] 2xl:text-base">
+                        {e?.isActive === true ? (
+                          <p className="rounded-lg border border-green-600/50 bg-green-700/20 text-green-500">
+                            فعال
+                          </p>
+                        ) : (
+                          <p className="rounded-lg border border-red-600/50 bg-red-700/20 text-red-500">
+                            غیرفعال
+                          </p>
+                        )}
+                      </div>
                     </td>
 
                     <td className="4xl:text-[28px] border-b border-white/20 font-[SamimBold] text-white md:text-xs 2xl:text-base">
@@ -104,7 +112,7 @@ function CompanyTable({
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={8}
                   className="border-b border-white/20 py-10 text-center text-white/60 md:text-sm 2xl:text-base"
                 >
                   {search

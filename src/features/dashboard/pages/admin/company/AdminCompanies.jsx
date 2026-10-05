@@ -10,11 +10,13 @@ import CompanyTable from '../../../components/company/template/CompanyTable';
 import CompanyMobilePage from '../../../components/company/template/CompanyMobilePage';
 import { useGetDepartment } from '../../../../../hooks/depratment/department';
 import CompanyForm from '../../../components/company/module/CompanyForm';
+import CompanyDelete from '../../../components/company/module/CompanyDelete';
 
 function AdminCompanies() {
   const { token, menus: userMenus } = useSelector((state) => state.auth);
 
   const [search, setSearch] = useState('');
+  const [departmentId, setdepartmentId] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +46,7 @@ function AdminCompanies() {
     data: company,
     isLoading,
     isError,
-  } = useGetCompanies({ search, page, pageSize });
+  } = useGetCompanies({ search, page, pageSize, departmentId });
 
   const { data: access } = useGetFullAccess();
 
@@ -52,6 +54,10 @@ function AdminCompanies() {
   const totalCount = company?.totalCount;
 
   const { data: dep } = useGetDepartment();
+
+  const { data: userPermission } = useGetFullAccess();
+
+  const filterglobalAccess = userPermission?.isGlobalAccess === true;
 
   return (
     <div className="h-screen overflow-hidden rounded-[15px] bg-[#0F090C]/30 text-white">
@@ -61,12 +67,16 @@ function AdminCompanies() {
           canCreate={canCreate}
           search={search}
           setSearch={setSearch}
+          departmentId={departmentId}
+          setdepartmentId={setdepartmentId}
           totalCount={totalCount}
           company={company}
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
           openFilterMobile={openFilterMobile}
           setOpenFilterMobile={setOpenFilterMobile}
+          dep={dep}
+          filterglobalAccess={filterglobalAccess}
         />
 
         {isLoading ? (
@@ -108,6 +118,12 @@ function AdminCompanies() {
       <CompanyForm
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        selectedCompany={selectedCompany}
+        setSelectedCompany={setSelectedCompany}
+      />
+      <CompanyDelete
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
         selectedCompany={selectedCompany}
         setSelectedCompany={setSelectedCompany}
       />
