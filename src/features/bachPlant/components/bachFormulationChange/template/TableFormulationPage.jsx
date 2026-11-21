@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiCalendar } from 'react-icons/fi';
 import { toShamsi } from '../../../../../Time/date';
 import ReportActionFurmolation from '../module/ReportActionFurmolation';
-import { getUser } from '../../../../../hooks/user/userApi';
+import { useGetUser } from '../../../../../hooks/user/userApi';
 
 function TableFormulationPage({
   filteredData,
@@ -17,7 +17,7 @@ function TableFormulationPage({
 }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10000000);
-  const { data: user } = getUser({ pageSize });
+  const { data: user } = useGetUser({ pageSize });
 
   return (
     <div>

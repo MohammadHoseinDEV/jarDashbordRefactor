@@ -73,7 +73,6 @@ function MoldFieldValidation() {
     isLoading,
     isError,
   } = useGetMoldFieldValidation({ search, page, pageSize });
-  console.log(mold);
   const { data: moldAll } = useGetAllMoldFieldValidation();
   const allReport = mold?.data?.totalCount;
   const allConfirmed = moldAll?.data?.filter(

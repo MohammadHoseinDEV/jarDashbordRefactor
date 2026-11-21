@@ -96,13 +96,7 @@ function ReportActionEarthWell({
                 <p>{report?.personnelName}</p>
               </div>
 
-              {((canEdit &&
-                profile?.data?.id === report?.createdBy &&
-                !report?.isPMSupervisorSigned) ||
-                (canEdit &&
-                  isElectricalSupervisor &&
-                  !report?.isPMSupervisorSigned) ||
-                isSuperAdmin) && (
+              {canEdit && (
                 <div
                   {...getItemProps({
                     onClick: (e) => {
@@ -114,6 +108,13 @@ function ReportActionEarthWell({
                   })}
                   className="flex w-full space-x-2 rounded-[5px] py-1 transition-all delay-75 duration-100 hover:bg-white/20"
                 >
+                  {/* &&
+                profile?.data?.id === report?.createdBy &&
+                !report?.isPMSupervisorSigned) ||
+                (canEdit &&
+                  isElectricalSupervisor &&
+                  !report?.isPMSupervisorSigned) ||
+                isSuperAdmin) */}
                   <button
                     className={`cursor-pointer rounded-[10px] p-2 font-[Samim] max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106'}`}
                   >
@@ -122,7 +123,6 @@ function ReportActionEarthWell({
                   <p className="my-auto flex text-white">ویرایش</p>
                 </div>
               )}
-              
 
               {((canDelete && !report?.isPMSupervisorSigned) ||
                 isSuperAdmin) && (

@@ -35,9 +35,11 @@ function EditEarthWell({
   setSelectedEarthWell,
 }) {
   const [form, setForm] = useState({
+    companyId: '',
     id: '',
     inspectionDate: '',
     personnelName: '',
+    shiftName: '',
     shiftFlags: 2,
     items: earthLocation?.map((e) => ({
       id: '',
@@ -55,9 +57,11 @@ function EditEarthWell({
     if (!selectedEarthWell) return;
 
     setForm({
+      companyId: selectedEarthWell?.companyId,
       id: selectedEarthWell?.id,
       inspectionDate: selectedEarthWell?.inspectionDate,
       personnelName: selectedEarthWell?.personnelName,
+      shiftName: selectedEarthWell?.shiftName,
       shiftFlags: selectedEarthWell?.shiftFlags,
       items: selectedEarthWell?.items?.length
         ? selectedEarthWell?.items?.map((e) => ({
@@ -105,7 +109,7 @@ function EditEarthWell({
   };
   return (
     <div
-      className={`fixed inset-0 z-50 flex h-screen items-center justify-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
         openEditModal
           ? 'pointer-events-auto opacity-100 '
           : 'pointer-events-none opacity-0'
@@ -116,9 +120,9 @@ function EditEarthWell({
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] w-[1000px] max-w-[95vw] transform flex-col rounded-[15px] bg-linear-to-tl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-md:h-160 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openEditModal
-            ? 'translate-y-0 scale-100 opacity-100'
+            ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >
@@ -186,9 +190,9 @@ function EditEarthWell({
             </label>
           </div>
           {/* Daily Work */}
-          <div className="mt-4 grid grid-cols-4 gap-4 max-md:grid-cols-2 max-md:gap-2">
+          <div className="mt-4 grid grid-cols-4 gap-4 max-md:grid-cols-2">
             <label
-              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[14px] ${
+              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[13px] ${
                 form.shiftFlags === 2
                   ? 'border-white bg-white text-black'
                   : 'border-[#2a2a2a] bg-[#141414] text-gray-300'
@@ -210,7 +214,7 @@ function EditEarthWell({
               روز کاری اول
             </label>
             <label
-              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[14px] ${
+              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[13px] ${
                 form.shiftFlags === 4
                   ? 'border-white bg-white text-black'
                   : 'border-[#2a2a2a] bg-[#141414] text-gray-300'
@@ -232,7 +236,7 @@ function EditEarthWell({
               روز کاری دوم
             </label>
             <label
-              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[13px] ${
+              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[12px] ${
                 form.shiftFlags === 6
                   ? 'border-white bg-white text-black'
                   : 'border-[#2a2a2a] bg-[#141414] text-gray-300'
@@ -254,7 +258,7 @@ function EditEarthWell({
               شب کاری اول
             </label>
             <label
-              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[13px] ${
+              className={`flex cursor-pointer items-center justify-center rounded-xl border px-8 py-2 transition-all max-md:text-[12px] ${
                 form.shiftFlags === 8
                   ? 'border-white bg-white text-black'
                   : 'border-[#2a2a2a] bg-[#141414] text-gray-300'
@@ -354,11 +358,18 @@ function EditEarthWell({
             ))}
           </div>
         </form>
-        <div>
+        <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
           <button
             type="submit"
             form="editEarthWellForm"
-            className="w-full cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-[1.01]"
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ثبت گزارش
           </button>
@@ -369,4 +380,3 @@ function EditEarthWell({
 }
 
 export default EditEarthWell;
-

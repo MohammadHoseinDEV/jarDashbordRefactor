@@ -6,28 +6,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FormRoleJsx from '../template/FormRoleJsx';
 import { useGetCompanies } from '../../../../../hooks/company/companiApi';
 import { useCreateRole, useUpdateRole } from '../../../../../hooks/role/role';
+import useSelectOptions from '../../../../dropDown/dropDownHook';
+import { useGetDepartment } from '../../../../../hooks/depratment/department';
 
-const roleSchema = z
-  .object({
-    roleName: z.string().trim().min(1, 'نام نقش الزامی است'),
-    isGlobalAccess: z.boolean(),
-    companyId: z.string().nullable(),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.isGlobalAccess && !data.companyId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['companyId'],
-        message:
-          'در صورت عدم انتخاب شرکت برای نقش مورد نظر باید دسترسی به صورت سراسری باشد.',
-      });
-    }
-  });
+const roleSchema = z.object({
+  roleName: z.string().trim().min(1, 'نام نقش الزامی است'),
+  isGlobalAccess: z.boolean(),
+  companyId: z.string().nullable(),
+  departmentId: z.string().nullable(),
+});
+// .superRefine((data, ctx) => {
+//   if (!data.isGlobalAccess && !data.companyId) {
+//     ctx.addIssue({
+//       code: z.ZodIssueCode.custom,
+//       path: ['companyId'],
+//       message:
+//         'در صورت عدم انتخاب شرکت برای نقش مورد نظر باید دسترسی به صورت سراسری باشد.',
+//     });
+//   }
+// });
 
 const initialState = {
   roleName: '',
   isGlobalAccess: false,
-  companyId: '',
+  companyId: null,
+  departmentId: null,
 };
 
 function FormRole({
@@ -60,6 +63,7 @@ function FormRole({
         roleName: selectedRole?.name ?? '',
         isGlobalAccess: selectedRole?.isGlobalAccess ?? true,
         companyId: selectedRole?.companyId ?? null,
+        departmentId: selectedRole?.departmentId ?? null,
       });
     } else {
       reset(initialState);
@@ -73,6 +77,7 @@ function FormRole({
   };
 
   const { data: company } = useGetCompanies();
+  const { data: depData } = useGetDepartment({ pageSize: 99 });
 
   const getCompany = useMemo(() => {
     const none = { id: '', name: 'انتخاب شرکت', isActive: true };
@@ -99,6 +104,12 @@ function FormRole({
       getCompany.find((c) => c.id === formValues.companyId) || getCompany[0]
     );
   }, [getCompany, formValues.companyId]);
+
+  const department = useSelectOptions(
+    depData?.departments,
+    'انتخاب دپارتمان',
+    watch('departmentId')
+  );
 
   const createRole = useCreateRole();
   const updateRole = useUpdateRole();
@@ -156,6 +167,7 @@ function FormRole({
           selectedCompany={selectedCompany}
           searchCompany={searchCompany}
           setSearchCompany={setSearchCompany}
+          department={department}
         />
       </div>
     </div>

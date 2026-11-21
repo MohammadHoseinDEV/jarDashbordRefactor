@@ -9,11 +9,11 @@ function TableDepartmentPage({
   openEdit,
   canDelete,
   openDelete,
+  openLogo,
   search,
 }) {
   const departments = dep?.departments || [];
 
-  
   return (
     <div>
       <div className="mt-2 hidden md:block">
@@ -68,6 +68,7 @@ function TableDepartmentPage({
                         openEdit={openEdit}
                         openDelete={openDelete}
                         canDelete={canDelete}
+                        openLogo={openLogo}
                       />
                     </td>
                   </tr>

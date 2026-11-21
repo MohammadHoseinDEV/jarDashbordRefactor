@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import FormLineChangeCheckListJsx from '../template/FormLineChangeCheckListJsx';
 import { useGetMenu } from '../../../../../hooks/menu/menuApi';
 import { findMenu } from '../../../../../utils/rbac';
-import { useGetPermissionSignature } from '../../../../../hooks/user/userApi';
+import {
+  useGetImageSign,
+  useGetPermissionSignature,
+} from '../../../../../hooks/user/userApi';
 import { useSelector } from 'react-redux';
 import { useGetProfile } from '../../../../../hooks/profile/profile';
 import { useGetSignatureId } from '../../../../../hooks/Signature/Signature';
@@ -10,6 +13,11 @@ import {
   useCreateSignOperationSupervisor,
   useCreateSignShiftSupervisor,
 } from '../../../Api/LineChangeCheckList/lineChangeCheckList';
+import { useGetCompanyLogo } from '../../../../../hooks/company/companiApi';
+
+import logo from '../../../../../assets/images/logo.png';
+import { useSignatureAccess } from '../../../../../hooks/userSignatureAccess';
+import { MENU_URL } from '../../../../../permission/menuKeys';
 
 function FormLineChangeCheckList({
   openForm,
@@ -36,70 +44,33 @@ function FormLineChangeCheckList({
     setOpenCode(true);
   };
 
-  // ---------------------------------------------------------------------
-  // Sign
-  // دسترسی امضاء
-  const { data: menu } = useGetMenu();
-  const productionWeight = findMenu(menu?.menus ?? [], 'line-change-checklist');
-  const menuId = productionWeight?.id;
-
-  const { data: permission } = useGetPermissionSignature(userInfo?.userId);
-  const canSign = permission?.data?.some(
-    (p) => p.menuId === menuId && p.canSignature === true
+  // --------------------------------------------------------
+  // Logo
+  const { data: companyLogo } = useGetCompanyLogo(
+    selectedCheckList?.companyId,
+    openForm && !!selectedCheckList?.companyId
   );
-  // ---------------------------------------------------------------------
 
-  const { data: profile } = useGetProfile();
+  const logoSrc =
+    companyLogo?.success && companyLogo?.imageBase64
+      ? `data:${companyLogo.contentType};base64,${companyLogo.imageBase64}`
+      : logo;
+  // --------------------------------------------------------
 
-  const isShiftSupervisor = profile?.data?.companyRoles?.some(
-    (p) => p.roleId === '93f39df4-1bf9-425c-8bbf-ed3db0567b48'
-  );
-  const canSignShiftSupervisor = canSign && isShiftSupervisor;
+  const { canSign } = useSignatureAccess(MENU_URL.LINE_CHANGE_CHECKLIST);
 
-  const isOperationsSupervisor = profile?.data?.companyRoles?.some(
-    (p) => p.roleId === '5e6bcab8-bb18-482f-9805-477ac64fa209'
-  );
-  const canSignOperationsSupervisor = canSign && isOperationsSupervisor;
+  const canSignExecutor = canSign('shift-supervisor');
+  const canSignSuperVisor = canSign('operations-supervisor');
 
-  // ---------------------------------------------------------------------
-
-  const { data: signShiftSupervisor } = useGetSignatureId(
+  const { data: signExecutor } = useGetImageSign(
     selectedCheckList?.shiftSupervisorSignedByUserId
   );
-  const { data: signOperationsSupervisor } = useGetSignatureId(
+  const { data: signSupervisor } = useGetImageSign(
     selectedCheckList?.operationsSupervisorSignedByUserId
   );
 
-  // ---------------------------------------------------------------------
-  useEffect(() => {
-    if (
-      selectedCheckList?.isShiftSupervisorSigned === true &&
-      signShiftSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedShiftSupervisor(
-        signShiftSupervisor?.data?.signatureImageBase64
-      );
-    } else {
-      setSelectedShiftSupervisor(null);
-    }
-
-    if (
-      selectedCheckList?.isOperationsSupervisorSigned === true &&
-      signOperationsSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedOperationSupervisor(
-        signOperationsSupervisor?.data?.signatureImageBase64
-      );
-    } else {
-      setSelectedOperationSupervisor(null);
-    }
-  }, [
-    signShiftSupervisor,
-    signOperationsSupervisor,
-    selectedCheckList?.isShiftSupervisorSigned,
-    selectedCheckList?.isOperationsSupervisorSigned,
-  ]);
-  // ---------------------------------------------------------------------
+  const executorSignature = signExecutor?.data?.signatureImageBase64;
+  const supervisorSignature = signSupervisor?.data?.signatureImageBase64;
 
   const createSignShiftSupervisor = useCreateSignShiftSupervisor();
   const createSignOperationSupervisor = useCreateSignOperationSupervisor();
@@ -107,7 +78,7 @@ function FormLineChangeCheckList({
   const handleSubmitSign = (e) => {
     e.preventDefault();
 
-    if (signatureType === 'shiftSupervisor') {
+    if (signatureType === 'shift-supervisor') {
       createSignShiftSupervisor.mutate(
         {
           id: selectedCheckList?.id,
@@ -122,7 +93,7 @@ function FormLineChangeCheckList({
       );
     }
 
-    if (signatureType === 'operationSupervisor') {
+    if (signatureType === 'operations-supervisor') {
       createSignOperationSupervisor.mutate(
         {
           id: selectedCheckList?.id,
@@ -168,10 +139,11 @@ function FormLineChangeCheckList({
             setOpenCode={setOpenCode}
             setPassword={setPassword}
             handleOpenSignatureModal={handleOpenSignatureModal}
-            selectedShiftSupervisor={selectedShiftSupervisor}
-            canSignShiftSupervisor={canSignShiftSupervisor}
-            selectedOperationSupervisor={selectedOperationSupervisor}
-            canSignOperationsSupervisor={canSignOperationsSupervisor}
+            logoSrc={logoSrc}
+            canSignExecutor={canSignExecutor}
+            executorSignature={executorSignature}
+            canSignSuperVisor={canSignSuperVisor}
+            supervisorSignature={supervisorSignature}
           />
         </div>
       </div>

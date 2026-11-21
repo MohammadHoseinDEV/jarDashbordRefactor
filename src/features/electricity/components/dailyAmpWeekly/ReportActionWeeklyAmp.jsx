@@ -15,14 +15,11 @@ import {
   FloatingNode,
   FloatingTree,
 } from '@floating-ui/react';
-import { MdMoreVert } from 'react-icons/md';
+import { MdDeleteOutline, MdMoreVert } from 'react-icons/md';
 
-
-import edit from '../../../../assets/images/edit.png';
-import deleteIcon from '../../../../assets/images/delete.png';
-import form from '../../../../assets/images/form.png';
 import { useGetProfile } from '../../../../hooks/profile/profile';
-
+import { FcViewDetails } from 'react-icons/fc';
+import { FiEdit } from 'react-icons/fi';
 
 function ReportActionWeeklyAmp({
   report,
@@ -117,9 +114,9 @@ function ReportActionWeeklyAmp({
                   className="flex w-full space-x-2 rounded-[5px] py-1 transition-all delay-75 duration-100 hover:bg-white/20"
                 >
                   <button
-                    className={`cursor-pointer rounded-[10px] p-2 font-[Samim] max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106'}`}
+                    className={`cursor-pointer rounded-[10px] p-2 font-[Samim] text-2xl text-green-500 max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106'}`}
                   >
-                    <img src={edit} alt="edit" width={20} />
+                    <FiEdit />
                   </button>
                   <p className="my-auto flex text-white">ویرایش</p>
                 </div>
@@ -138,9 +135,9 @@ function ReportActionWeeklyAmp({
                   className="flex w-full space-x-2 rounded-[5px] py-1 transition-all delay-75 duration-100 hover:bg-white/20"
                 >
                   <button
-                    className={`cursor-pointer rounded-[10px] p-2 font-[Samim] max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106 '}`}
+                    className={`cursor-pointer rounded-[10px] p-2 font-[Samim] text-2xl text-red-500 max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106 '}`}
                   >
-                    <img src={deleteIcon} alt="delete" width={20} />
+                    <MdDeleteOutline />
                   </button>
                   <p className="my-auto flex text-white">حذف</p>
                 </div>
@@ -156,12 +153,11 @@ function ReportActionWeeklyAmp({
                 })}
                 className="flex w-full space-x-2 rounded-[5px] p-1 py-1 transition-all delay-75 duration-100 hover:scale-103 hover:bg-white/20"
               >
-                <img
-                  src={form}
-                  alt="form"
-                  width={25}
-                  className="flex space-x-2 rounded-[5px] py-1 transition-all delay-75 duration-100"
-                />
+                <button
+                  className={`cursor-pointer rounded-[10px] p-2 font-[Samim] text-2xl text-red-500 max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106 '}`}
+                >
+                  <FcViewDetails />
+                </button>
 
                 <p className="my-auto font-[VazirLight] text-white">نمایش</p>
               </div>

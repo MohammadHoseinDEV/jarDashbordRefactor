@@ -2,15 +2,17 @@ import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { can, getPerm } from '../../../../utils/rbac';
 import { toast } from 'react-toastify';
-import FormLineChangeCheckList from '../../components/lineChangeChecklist/module/FormLineChangeCheckList';
-import HeaderPageLineChangeCheckList from '../../components/lineChangeChecklist/template/HeaderPageLineChangeCheckList';
-import CreateLinechangeCheckList from '../../components/lineChangeChecklist/module/CreateLinechangeCheckList';
 import { useGetLinechangeCheckList } from '../../Api/LineChangeCheckList/lineChangeCheckList';
 import { useGetProfile } from '../../../../hooks/profile/profile';
 import { HashLoader } from 'react-spinners';
+
+import FormLineChangeCheckList from '../../components/lineChangeChecklist/module/FormLineChangeCheckList';
+import HeaderPageLineChangeCheckList from '../../components/lineChangeChecklist/template/HeaderPageLineChangeCheckList';
+import CreateLinechangeCheckList from '../../components/lineChangeChecklist/module/CreateLinechangeCheckList';
 import TablePageLinechangeCheckList from '../../components/lineChangeChecklist/template/TablePageLinechangeCheckList';
 import EditLineChangeCheckList from '../../components/lineChangeChecklist/module/EditLineChangeCheckList';
 import DeleteLineChangeCheckList from '../../components/lineChangeChecklist/module/DeleteLineChangeCheckList';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
 
 function LineChangeChecklist() {
   const { menus: userMenus } = useSelector((s) => s.auth);
@@ -56,9 +58,9 @@ function LineChangeChecklist() {
 
   const { data: profile } = useGetProfile();
 
-  const findcompany = profile?.data?.companyRoles?.find(
-    (c) => c.companyId
-  )?.companyId;
+  const { data: permission } = useGetFullAccess();
+
+  const findCompany = permission?.companies?.[0]?.id;
 
   const {
     data: checkList,
@@ -68,7 +70,7 @@ function LineChangeChecklist() {
     search,
     page,
     pageSize,
-    companyId: findcompany,
+    companyId: findCompany,
   });
 
   const allReport = checkList?.data?.totalCount;
@@ -146,6 +148,7 @@ function LineChangeChecklist() {
             <div className="mx-3 w-full max-md:hidden">
               <TablePageLinechangeCheckList
                 filteredData={filteredData}
+                search={search}
                 canEdit={canEdit}
                 canDelete={canDelete}
                 openEdit={openEdit}

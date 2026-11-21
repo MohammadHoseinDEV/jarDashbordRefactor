@@ -10,6 +10,7 @@ function CompanyTable({
   openEdit,
   canDelete,
   openDelete,
+  openLogo,
   search,
 }) {
   const { data: dep } = useGetDepartment();
@@ -104,6 +105,7 @@ function CompanyTable({
                         openEdit={openEdit}
                         openDelete={openDelete}
                         canDelete={canDelete}
+                        openLogo={openLogo}
                       />
                     </td>
                   </tr>
@@ -120,6 +122,7 @@ function CompanyTable({
                     : 'شرکتی ثبت نشده است'}
                 </td>
               </tr>
+              
             )}
           </tbody>
         </table>

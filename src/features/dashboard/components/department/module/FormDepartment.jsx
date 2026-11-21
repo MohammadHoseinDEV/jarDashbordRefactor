@@ -23,6 +23,7 @@ const initialState = {
   isActive: true,
 };
 
+
 function FormDepartment({
   isModalOpen,
   setIsModalOpen,

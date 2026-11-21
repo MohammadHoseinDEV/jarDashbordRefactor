@@ -26,6 +26,7 @@ function FormRoleJsx({
   selectedCompany,
   searchCompany,
   setSearchCompany,
+  department,
 }) {
   const isGlobalAccess = watch('isGlobalAccess');
 
@@ -125,51 +126,97 @@ function FormRoleJsx({
         </div>
         <div className="relative">
           <div className="rounded-xl border border-white/10 text-[16px] font-semibold text-[Vazirmatn]">
-            {!isGlobalAccess && (
-              <Combobox
-                immediate
-                value={selectedCompany}
-                onChange={(value) =>
-                  setValue('companyId', value?.id || null, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-                onClose={() => setSearchCompany('')}
+            <Combobox
+              immediate
+              value={department?.selected}
+              onChange={(value) =>
+                setValue('departmentId', value?.id ?? null, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+              onClose={() => department?.setSearch('')}
+            >
+              <div className="relative">
+                <ComboboxInput
+                  displayValue={(c) => (c?.id ? c.name : '')}
+                  onChange={(e) => department?.setSearch(e.target.value)}
+                  placeholder="انتخاب  دپارتمان..."
+                  autoComplete="off"
+                  className="w-full rounded-xl bg-white/5 p-3 font-[Vazirmatn] text-white outline-none placeholder:text-white/50"
+                />
+                <ComboboxButton className="absolute inset-y-0 left-0 px-3 text-white/70">
+                  ▾
+                </ComboboxButton>
+              </div>
+              <ComboboxOptions
+                modal={false}
+                anchor="bottom"
+                className="no-scrollbar z-999 max-h-60 w-(--input-width) rounded-xl bg-black/95 p-1 shadow-lg ring-1 ring-white/10 [--anchor-gap:8px]"
               >
-                <div className="relative mt-1">
-                  <ComboboxInput
-                    displayValue={(c) => c?.name ?? ''}
-                    onChange={(e) => setSearchCompany(e.target.value)}
-                    placeholder="انتخاب شرکت..."
-                    autoComplete="off"
-                    className="w-full rounded-xl bg-white/5 p-3 font-[Vazirmatn] text-white outline-none placeholder:text-white/50"
-                  />
-                  <ComboboxButton className="absolute inset-y-0 left-0 px-3 text-white/70">
-                    ▾
-                  </ComboboxButton>
-                </div>
+                {department?.filtered?.length === 0 ? (
+                  <div className="p-3 text-white/70">موردی پیدا نشد</div>
+                ) : (
+                  department?.filtered?.map((c) => (
+                    <ComboboxOption
+                      key={c.id ?? 'empty'}
+                      value={c}
+                      className="cursor-pointer rounded-lg p-3 text-white data-focus:bg-white/10 data-selected:bg-white/15"
+                    >
+                      {c.name}
+                    </ComboboxOption>
+                  ))
+                )}
+              </ComboboxOptions>
+            </Combobox>
+          </div>
+        </div>
+        <div className="relative">
+          <div className="rounded-xl border border-white/10 text-[16px] font-semibold text-[Vazirmatn]">
+            <Combobox
+              immediate
+              value={selectedCompany}
+              onChange={(value) =>
+                setValue('companyId', value?.id || null, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+              onClose={() => setSearchCompany('')}
+            >
+              <div className="relative">
+                <ComboboxInput
+                  displayValue={(c) => c?.name ?? ''}
+                  onChange={(e) => setSearchCompany(e.target.value)}
+                  placeholder="انتخاب شرکت..."
+                  autoComplete="off"
+                  className="w-full rounded-xl bg-white/5 p-3 font-[Vazirmatn] text-white outline-none placeholder:text-white/50"
+                />
+                <ComboboxButton className="absolute inset-y-0 left-0 px-3 text-white/70">
+                  ▾
+                </ComboboxButton>
+              </div>
 
-                <ComboboxOptions
-                  anchor="bottom"
-                  className="no-scrollbar z-999 max-h-60 w-(--input-width) rounded-xl bg-black/95 p-1 shadow-lg ring-1 ring-white/10 [--anchor-gap:8px]"
-                >
-                  {activeCompanies.length === 0 ? (
-                    <div className="p-3 text-white/70">موردی پیدا نشد</div>
-                  ) : (
-                    activeCompanies.map((c) => (
-                      <ComboboxOption
-                        key={c.id}
-                        value={c}
-                        className="cursor-pointer rounded-lg p-3 text-white data-focus:bg-white/10 data-selected:bg-white/15"
-                      >
-                        {c.name}
-                      </ComboboxOption>
-                    ))
-                  )}
-                </ComboboxOptions>
-              </Combobox>
-            )}
+              <ComboboxOptions
+                modal={false}
+                anchor="bottom"
+                className="no-scrollbar z-999 max-h-60 w-(--input-width) rounded-xl bg-black/95 p-1 shadow-lg ring-1 ring-white/10 [--anchor-gap:8px]"
+              >
+                {activeCompanies.length === 0 ? (
+                  <div className="p-3 text-white/70">موردی پیدا نشد</div>
+                ) : (
+                  activeCompanies.map((c) => (
+                    <ComboboxOption
+                      key={c.id}
+                      value={c}
+                      className="cursor-pointer rounded-lg p-3 text-white data-focus:bg-white/10 data-selected:bg-white/15"
+                    >
+                      {c.name}
+                    </ComboboxOption>
+                  ))
+                )}
+              </ComboboxOptions>
+            </Combobox>
           </div>
           {errors?.companyId && (
             <p className="absolute top-11 right-2 rounded-xl bg-[#1c1c1c] px-1 text-[8px] text-red-500 md:text-[10px]">
@@ -177,6 +224,7 @@ function FormRoleJsx({
             </p>
           )}
         </div>
+
         <div className="mt-6 flex items-center justify-end gap-3">
           <button
             type="button"

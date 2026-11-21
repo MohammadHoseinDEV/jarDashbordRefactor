@@ -14,6 +14,8 @@ import { FcElectricalSensor } from 'react-icons/fc';
 import { TbLogout } from 'react-icons/tb';
 import { CgProfile } from 'react-icons/cg';
 import { FiLogOut } from 'react-icons/fi';
+import { useGetFullAccess } from '../../../hooks/auth/authApi';
+import { LuFactory, LuUser } from 'react-icons/lu';
 
 const Profile = lazy(() => import('../components/Profile/Profile'));
 
@@ -28,6 +30,7 @@ function DashboardHome() {
   const [pageSize, setPageSize] = useState(10);
 
   const { data: profiles } = useGetProfile();
+  const { userPermission } = useGetFullAccess();
 
   if (!token) return <Navigate to="/login" replace />;
 
@@ -40,31 +43,14 @@ function DashboardHome() {
   const lastReport = electricals?.data?.items[0];
 
   if (
-    profiles?.data?.companyRoles?.length === 0 &&
-    profiles?.data?.identityRoles?.length === 0 &&
-    profiles?.data?.units?.length === 0
-  )
+    userPermission?.roles?.length === 0 ||
+    userPermission?.menus?.length === 0
+  ) {
     return <Navigate to="/no-access" replace />;
-
-  const isSuperAdmin = profiles?.data?.identityRoles?.some(
-    (p) => p.roleId === 'cfa79204-d797-4241-8630-55fcc1b2f721'
-  );
-
-  const managerWidget = profiles?.data?.identityRoles.some(
-    (r) => r.roleId === 'cfa79204-d797-4241-8630-55fcc1b2f721'
-  );
+  }
 
   return (
     <div className="no-scrollbar relative flex h-full justify-between">
-      <style>{`
-        @keyframes wiggle {
-          0%, 90%, 100% { transform: rotate(0deg); }
-          92% { transform: rotate(-10deg); }
-          94% { transform: rotate(10deg); }
-          96% { transform: rotate(-6deg); }
-          98% { transform: rotate(6deg); }
-        }
-      `}</style>
       {/* {managerWidget === true && (
         <div className="mt-5 flex gap-5 max-md:hidden">
           <div className="flex flex-wrap gap-4">
@@ -291,21 +277,41 @@ function DashboardHome() {
 
       <div></div>
       <div className="4xl:pt-2 flex justify-end rounded-2xl">
-        <div className="absolute top-2 flex space-x-2 pl-5 text-white">
-          <span
-            onClick={() => setOpenProfile(true)}
-            className="animate-wiggle-inline my-auto cursor-pointer rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
-            style={{ animation: 'wiggle 3s ease-in-out infinite' }}
-          >
-            <CgProfile className="5xl:size-15 size-9 text-black" />
-          </span>
-          <span
-            onClick={() => setOpenExit(true)}
-            className="animate-wiggle-inline my-auto flex cursor-pointer items-center justify-center rounded-full bg-white p-1 transition-all delay-100 duration-200 ease-in-out hover:scale-110"
-            style={{ animation: 'wiggle 3s ease-in-out infinite' }}
-          >
-            <FiLogOut className="5xl:size-15 flex size-9 text-center text-black" />
-          </span>
+        <div className="absolute mt-1 ml-2 flex items-center justify-center gap-3 rounded-[20px] border border-white/25 bg-black/70 px-3 py-2">
+          <p className="group relative flex items-center justify-center space-x-1">
+            <span className="max-w-0 overflow-hidden font-[Vazirmatn] whitespace-nowrap text-white/80 opacity-0 transition-all duration-300 group-hover:max-w-25 group-hover:opacity-100">
+              انتخاب دپارتمان
+            </span>
+            <span
+              onClick={() => setOpenProfile(true)}
+              className="grid size-10 cursor-pointer place-items-center rounded-[11px] border border-white/50 bg-white/8 text-[25px] text-white/85 transition-all delay-100 duration-150 hover:-translate-y-0.5 hover:border-[#ff6a1a]/60 hover:bg-[#ff5a0a]/20 hover:text-white hover:shadow-[0_7px_22px_rgb(255_90_10/0.4)]"
+            >
+              <LuFactory />
+            </span>
+          </p>
+
+          <p className="group relative flex items-center space-x-2">
+            <span className="max-w-0 overflow-hidden font-[Vazirmatn] whitespace-nowrap text-white/80 opacity-0 transition-all duration-300 group-hover:max-w-20 group-hover:opacity-100">
+              پروفایل
+            </span>
+            <span
+              onClick={() => setOpenProfile(true)}
+              className="grid size-10 cursor-pointer place-items-center rounded-[11px] border border-white/50 bg-white/8 text-[25px] text-white/85 transition-all duration-150 hover:-translate-y-0.5 hover:border-sky-300/55 hover:bg-sky-500/20 hover:shadow-[0_7px_22px_rgb(19_152_210/0.35)]"
+            >
+              <LuUser />
+            </span>
+          </p>
+          <p className="group relative flex items-center space-x-2">
+            <span className="max-w-0 overflow-hidden whitespace-nowrap text-white/80 opacity-0 transition-all duration-300 group-hover:mr-2 group-hover:ml-2 group-hover:max-w-20 group-hover:opacity-100">
+              خروج
+            </span>
+            <span
+              onClick={() => setOpenExit(true)}
+              className="grid size-10 cursor-pointer place-items-center rounded-[11px] border border-white/50 bg-white/8 text-[25px] text-white/85 transition-all delay-100 duration-150 hover:-translate-y-0.5 hover:border-red-300/50 hover:bg-red-500/20 hover:text-white hover:shadow-[0_7px_22px_rgb(196_36_36/0.35)]"
+            >
+              <FiLogOut />
+            </span>
+          </p>
         </div>
         <div className="absolute bottom-0 left-0 my-auto w-100 items-center rounded-[10px] px-2 py-1 text-center font-[Vazirmatn] font-semibold text-white/50">
           <p>پشتیبانی و توسعه واحد فناوری اطلاعات کاویان جار ساچی</p>

@@ -8,7 +8,7 @@ import system from '../assets/images/system.png';
 import user from '../assets/images/users.png';
 import role from '../assets/images/role.png';
 import unit from '../assets/images/office.png';
-import { FaBolt, FaHeading } from 'react-icons/fa';
+import { FaBolt, FaHeading, FaStripeS } from 'react-icons/fa';
 import { FaClipboardList } from 'react-icons/fa';
 import { FaCogs } from 'react-icons/fa';
 import { GiLaserPrecision } from 'react-icons/gi';
@@ -58,6 +58,7 @@ export const MENU_ICON_MAP = {
   salesTransfer: GrDocumentTransfer,
   holding: FaHeading,
   department: FaD,
+  systems: FaStripeS,
 };
 
 export const MENU_ICON_OPTIONS = [
@@ -90,4 +91,5 @@ export const MENU_ICON_OPTIONS = [
   { key: 'salesTransfer', label: 'ثبت حواله' },
   { key: 'holding', label: 'هلدینگ' },
   { key: 'department', label: 'دپارتمان' },
+  { key: 'systems', label: 'سیستم' },
 ];

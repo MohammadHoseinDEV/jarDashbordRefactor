@@ -93,3 +93,39 @@ export const useDeleteDepartment = () => {
   });
   return deleteReport;
 };
+
+export const useUploadDepartmentLogo = () => {
+  const { token } = useSelector((state) => state.auth);
+  const queryclient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await axios.put(`${BASE_API}/${id}/logo`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      toast.success('لوگو با موفقیت بارگذاری شد');
+      queryclient.invalidateQueries({ queryKey: ['dep'] });
+    },
+    onError: (e) => {
+      toast.error(e.response.data.message || 'خطا در بارگذاری لوگو');
+    },
+  });
+};
+
+export const useGetDeoartmentLogo = (id, enabled = true) => {
+  const { token } = useSelector((state) => state.auth);
+
+  return useQuery({
+    queryKey: ['dep', 'logo', id],
+    queryFn: async () => {
+      const res = await axios.get(`${BASE_API}/${id}/logo`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+    enabled: !!id && enabled,
+    staleTime: 5 * 60 * 1000,
+  });
+};

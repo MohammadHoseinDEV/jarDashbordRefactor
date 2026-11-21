@@ -9,13 +9,20 @@ import { GrLinkNext, GrLinkPrevious } from 'react-icons/gr';
 import { toShamsi } from '../../../../Time/date';
 import { findMenu } from '../../../../utils/rbac';
 import { useGetMenu } from '../../../../hooks/menu/menuApi';
-import { useGetPermissionSignature } from '../../../../hooks/user/userApi';
+import {
+  useGetImageSign,
+  useGetPermissionSignature,
+} from '../../../../hooks/user/userApi';
 import { useGetSignatureId } from '../../../../hooks/Signature/Signature';
 import { useGetProfile } from '../../../../hooks/profile/profile';
 import {
   useCreateSignProducer,
   useCreateSignSupervisor,
 } from '../../Api/dailyAmpWeekly/WeeklyAmp';
+import { useGetCompanyLogo } from '../../../../hooks/company/companiApi';
+import { useSignatureAccess } from '../../../../hooks/userSignatureAccess';
+import { MENU_URL } from '../../../../permission/menuKeys';
+import { LuPencil } from 'react-icons/lu';
 
 function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
   const { userInfo } = useSelector((state) => state.auth);
@@ -24,10 +31,6 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
   const [openCode, setOpenCode] = useState(false);
   const [password, setPassword] = useState('');
   const [signatureType, setSignatureType] = useState(null);
-
-  const [selectedSignProducer, setSelectedSignProducer] = useState(null);
-  const [selectedSignatureSuperVisor, setSelectedSignatureSuperVisor] =
-    useState(null);
 
   const closeHandler = () => {
     setOpenForm(false);
@@ -38,78 +41,41 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
     setOpenCode(true);
   };
 
-  // ---------------------------------------------------------------------
-  const { data: menu } = useGetMenu();
-  const electricalMenu = findMenu(menu?.menus ?? [], 'weekly-amp');
-  const menuId = electricalMenu?.id;
-
-  const { data: permission } = useGetPermissionSignature(userInfo?.userId);
-  const canSign = permission?.data?.some(
-    (p) => p.menuId === menuId && p.canSignature === true
-  );
-  // ---------------------------------------------------------------------
-
-  const { data: signProducer } = useGetSignatureId(
-    selectedWeeklyAmp?.executorSignedByUserId
-  );
-
-  const { data: signatureSupervisor } = useGetSignatureId(
-    selectedWeeklyAmp?.supervisorSignedByUserId
-  );
-  // -----------------------------------------------------
-  const { data: profile } = useGetProfile();
-  // Producer
-  const isProducer = selectedWeeklyAmp?.createdBy === profile?.data?.id;
-
-  const canSignProducer = canSign && isProducer;
-  // --------------------------------------------------------------
-  // Supervisor
-  const isSupervisor = profile?.data?.companyRoles?.some(
-    (p) => p.roleId === '5e6bcab8-bb18-482f-9805-477ac64fa209'
-  );
-  const canSignSupervisor = canSign && isSupervisor;
-  // --------------------------------------------------------------
-
-  useEffect(() => {
-    // Handover
-    if (
-      selectedWeeklyAmp?.isExecutorSigned === true &&
-      signProducer?.data?.signatureImageBase64
-    ) {
-      setSelectedSignProducer(signProducer.data.signatureImageBase64);
-    } else {
-      setSelectedSignProducer(null);
-    }
-
-    // Supervisor
-    if (
-      selectedWeeklyAmp?.isSupervisorSigned === true &&
-      signatureSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedSignatureSuperVisor(
-        signatureSupervisor.data.signatureImageBase64
-      );
-    } else {
-      setSelectedSignatureSuperVisor(null);
-    }
-  }, [
-    signProducer,
-    signatureSupervisor,
-    selectedWeeklyAmp?.isExecutorSigned,
-    selectedWeeklyAmp?.isSupervisorSigned,
-  ]);
-
   const sliceWeeklyAmpPage1 = selectedWeeklyAmp?.items?.slice(0, 36);
   const sliceWeeklyAmpPage2 = selectedWeeklyAmp?.items?.slice(36, 72);
   const sliceWeeklyAmpPage3 = selectedWeeklyAmp?.items?.slice(72, 108);
   const sliceWeeklyAmpPage4 = selectedWeeklyAmp?.items?.slice(108, 144);
   const sliceWeeklyAmpPage5 = selectedWeeklyAmp?.items?.slice(144);
 
+  const { data: companyLogo } = useGetCompanyLogo(
+    selectedWeeklyAmp?.companyId,
+    openForm && !!selectedWeeklyAmp?.companyId
+  );
+
+  const logoSrc =
+    companyLogo?.success && companyLogo?.imageBase64
+      ? `data:${companyLogo.contentType};base64,${companyLogo.imageBase64}`
+      : logo;
+
+  const { canSign } = useSignatureAccess(MENU_URL.WEEKLY_AMP);
+  const canSignExecutor = canSign('executor');
+  const canSignSuperVisor = canSign('supervisor');
+
+  const { data: signExecutor } = useGetImageSign(
+    selectedWeeklyAmp?.executorSignedByUserId
+  );
+  const { data: signSupervisor } = useGetImageSign(
+    selectedWeeklyAmp?.supervisorSignedByUserId
+  );
+
+  const executorSignature = signExecutor?.data?.signatureImageBase64;
+  const supervisorSignature = signSupervisor?.data?.signatureImageBase64;
+
   const createSignProducer = useCreateSignProducer();
   const createSignSupervisor = useCreateSignSupervisor();
 
   const handleSubmitSignature = () => {
-    if (signatureType === 'producer') {
+    if (signatureType === 'executor') {
       createSignProducer.mutate(
         {
           id: selectedWeeklyAmp?.id,
@@ -118,11 +84,13 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
         {
           onSuccess: () => {
             setOpenCode(false);
+            setPassword('');
             setOpenForm(false);
           },
         }
       );
     }
+
     if (signatureType === 'supervisor') {
       createSignSupervisor.mutate(
         {
@@ -132,6 +100,7 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
         {
           onSuccess: () => {
             setOpenCode(false);
+            setPassword('');
             setOpenForm(false);
           },
         }
@@ -179,7 +148,11 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 {/* Header */}
                 <div className="grid grid-cols-5 border-t border-r border-l">
                   <div className="flex items-center justify-center border-b border-l">
-                    <img src={logo} alt="logo" width={100} />
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-20 w-25 object-contain"
+                    />
                   </div>
                   <div className="col-span-3 flex items-center justify-center border-b border-l">
                     <h1 className="font-[SamimBold] text-[20px]">
@@ -317,7 +290,11 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 {/* Header */}
                 <div className="grid grid-cols-5 border-t border-r border-l">
                   <div className="flex items-center justify-center border-b border-l">
-                    <img src={logo} alt="logo" width={100} />
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-20 w-25 object-contain"
+                    />
                   </div>
                   <div className="col-span-3 flex items-center justify-center border-b border-l">
                     <h1 className="font-[SamimBold] text-[20px]">
@@ -454,7 +431,11 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 {/* Header */}
                 <div className="grid grid-cols-5 border-t border-r border-l">
                   <div className="flex items-center justify-center border-b border-l">
-                    <img src={logo} alt="logo" width={100} />
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-20 w-25 object-contain"
+                    />
                   </div>
                   <div className="col-span-3 flex items-center justify-center border-b border-l">
                     <h1 className="font-[SamimBold] text-[20px]">
@@ -591,7 +572,11 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 {/* Header */}
                 <div className="grid grid-cols-5 border-t border-r border-l">
                   <div className="flex items-center justify-center border-b border-l">
-                    <img src={logo} alt="logo" width={100} />
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-20 w-25 object-contain"
+                    />
                   </div>
                   <div className="col-span-3 flex items-center justify-center border-b border-l">
                     <h1 className="font-[SamimBold] text-[20px]">
@@ -728,7 +713,11 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 {/* Header */}
                 <div className="grid grid-cols-5 border-t border-r border-l">
                   <div className="flex items-center justify-center border-b border-l">
-                    <img src={logo} alt="logo" width={100} />
+                    <img
+                      src={logoSrc}
+                      alt="logo"
+                      className="h-20 w-25 object-contain"
+                    />
                   </div>
                   <div className="col-span-3 flex items-center justify-center border-b border-l">
                     <h1 className="font-[SamimBold] text-[20px]">
@@ -858,51 +847,61 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-around pt-8 pr-2">
-                  <div className="flex space-x-1">
-                    <p> امضاء تهیه کننده:</p>
+                <div className="mt-5 grid grid-cols-2 justify-center gap-5 text-center">
+                  <div
+                    className={`relative flex h-30 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedWeeklyAmp?.isExecutorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+                  >
+                    <p className="space-x-1 text-xs">
+                      <span>نام و امضاء تهیه کننده :</span>
+                      <span className="font-[Vazirmatn] font-semibold">
+                        {selectedWeeklyAmp?.executorSignedByFullName}
+                      </span>
+                    </p>
                     <p>
-                      {selectedSignProducer ? (
+                      {executorSignature ? (
                         <img
-                          src={`data:image/png;base64,${selectedSignProducer}`}
+                          src={`data:image/png;base64,${executorSignature}`}
                           alt="signature"
-                          className="fixed right-60 bottom-1 h-25 w-40"
+                          className="absolute right-1/3 bottom-0 h-30 object-contain"
                         />
-                      ) : canSignProducer ? (
+                      ) : canSignExecutor &&
+                        !selectedWeeklyAmp?.isExecutorSigned ? (
                         <button
-                          onClick={() => handleOpenSignatureModal('producer')}
-                          className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                          onClick={() => handleOpenSignatureModal('executor')}
+                          className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                         >
-                          ثبت امضاء
+                          <span>ثبت امضاء</span>
+                          <LuPencil />
                         </button>
-                      ) : (
-                        <span className="rounded-[10px] bg-red-500 p-1 text-[10px]">
-                          عدم دسترسی
-                        </span>
-                      )}
+                      ) : null}
                     </p>
                   </div>
-                  <div className="flex space-x-1">
-                    <p> امضاء تایید کننده:</p>
+                  <div
+                    className={`relative flex h-30 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedWeeklyAmp?.isSupervisorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+                  >
+                    <p className="text-xs">
+                      <span>نام و امضاء تایید کننده :</span>
+                      <span className="font-[Vazirmatn] font-semibold">
+                        {selectedWeeklyAmp?.supervisorSignedByFullName}
+                      </span>
+                    </p>
                     <p>
-                      {selectedSignatureSuperVisor ? (
+                      {supervisorSignature ? (
                         <img
-                          src={`data:image/png;base64,${selectedSignatureSuperVisor}`}
+                          src={`data:image/png;base64,${supervisorSignature}`}
                           alt="signature"
-                          className="fixed bottom-1 left-0 h-25 w-35"
+                          className="absolute bottom-0 left-1/3 h-30 object-contain"
                         />
-                      ) : canSignSupervisor ? (
+                      ) : canSignSuperVisor &&
+                        !selectedWeeklyAmp?.isSupervisorSigned ? (
                         <button
                           onClick={() => handleOpenSignatureModal('supervisor')}
-                          className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                          className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                         >
-                          ثبت امضاء
+                          <span>ثبت امضاء</span>
+                          <LuPencil />
                         </button>
-                      ) : (
-                        <span className="rounded-[10px] bg-red-500 p-1 text-[10px]">
-                          عدم دسترسی
-                        </span>
-                      )}
+                      ) : null}
                     </p>
                   </div>
                 </div>
@@ -922,7 +921,9 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                 <GrLinkNext />
               </button>
             </p>
-            <p className="rounded-[10px] bg-blue-300 px-2 py-1 font-[AvenirLTProHeavy]">
+            <p
+              className={`rounded-[10px] bg-blue-300 px-2 py-1 font-[AvenirLTProHeavy] ${page === 5 && 'opacity-0'}`}
+            >
               {page}
             </p>
             <p className="hidden max-md:block">
@@ -931,7 +932,7 @@ function FormWeeklyAmp({ openForm, setOpenForm, selectedWeeklyAmp }) {
                   setPage(page + 1);
                 }}
                 disabled={page === 5}
-                className={`flex size-10 cursor-pointer items-center justify-center rounded-[10px] bg-blue-300 px-2 py-1 transition-all delay-75 duration-100 hover:scale-110 ${page === 5 && 'cursor-not-allowed opacity-50 '}`}
+                className={`flex size-10 cursor-pointer items-center justify-center rounded-[10px] bg-blue-300 px-2 py-1 transition-all delay-75 duration-100 hover:scale-110 ${page === 5 && 'hidden cursor-not-allowed '}`}
               >
                 <GrLinkPrevious />
               </button>

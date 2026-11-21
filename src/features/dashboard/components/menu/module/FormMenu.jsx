@@ -13,7 +13,7 @@ const menuSchema = z.object({
   name: z.string().trim().min(1, 'نام منو الزامی است'),
   title: z.string().trim().min(1, 'عنوان منو الزامی است'),
   icon: z.string().min(1, 'انتخاب آیکون الزامی است'),
-  url: z.string().trim().min(1, 'پرکردن لینک صفحه الزامی است'),
+  url: z.string().trim(),
   displayOrder: z.coerce
     .number({ error: 'ترتیب باید عدد باشد' })
     .min(1, 'وارد کردن ترتیب منو الزامی است'),
@@ -27,7 +27,7 @@ const initialState = {
   icon: '',
   url: '',
   displayOrder: '',
-  parentMenuId: '',
+  parentMenuId: null,
   isActive: true,
 };
 
@@ -67,7 +67,7 @@ function FormMenu({
         icon: selectedMenus?.icon ?? '',
         url: selectedMenus?.url ?? '',
         displayOrder: selectedMenus?.displayOrder ?? 0,
-        parentMenuId: selectedMenus?.parentMenuId ?? '',
+        parentMenuId: selectedMenus?.parentMenuId ?? null,
         isActive: selectedMenus?.isActive ?? '',
       });
     } else {

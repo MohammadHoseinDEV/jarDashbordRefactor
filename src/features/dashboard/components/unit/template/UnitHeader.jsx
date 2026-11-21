@@ -12,10 +12,14 @@ function UnitHeader({
   setSearch,
   totalCount,
   unit,
+  company,
+  companyId,
+  setcompanyId,
   filterStatus,
   setFilterStatus,
   openFilterMobile,
   setOpenFilterMobile,
+  AccessToFilter,
 }) {
   return (
     <div className="w-full">
@@ -71,16 +75,37 @@ function UnitHeader({
             </p>
           </button>
         </div>
-        <div className="4xl:mx-2">
-          <input
-            type="text"
-            value={search}
-            placeholder="جستجو واحد..."
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-            className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] w-[50vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:text-xs 2xl:pr-2 2xl:text-sm"
-          />
+        <div className="4xl:mx-2 flex items-center space-x-2">
+          {AccessToFilter && (
+            <div>
+              <select
+                name="companyId"
+                value={companyId}
+                onChange={(e) => {
+                  setcompanyId(e.target.value);
+                }}
+                className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:w-[30vh] md:text-xs 2xl:w-[50vh] 2xl:pr-2 2xl:text-sm"
+              >
+                <option value="">همه شرکت ها</option>
+                {company?.companies?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} - {c.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <input
+              type="text"
+              value={search}
+              placeholder="جستجو واحد..."
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+              className="4xl:py-3.5 4xl:placeholder:text-[20px] 4xl:w-[60vh] rounded-[10px] border border-white/20 bg-[#07090f] py-3 pr-2 placeholder:pr-2 placeholder:text-white/50 md:w-[30vh] md:text-xs 2xl:w-[50vh] 2xl:pr-2 2xl:text-sm"
+            />
+          </div>
         </div>
         {/* <div className="flex items-center justify-end space-x-2 pt-2 pl-5 opacity-0">
                 <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
@@ -129,7 +154,7 @@ function UnitHeader({
               onChange={(e) => {
                 setSearch(e.target.value);
               }}
-              className="mb-3 h-10 w-full rounded-[10px] border border-white/10 bg-white/5 pr-8 font-[Vazirmatn] text-sm font-semibold"
+              className="h-10 w-full rounded-[10px] border border-white/10 bg-white/5 pr-8 font-[Vazirmatn] text-sm font-semibold"
             />
             <p className="absolute top-3 right-2 text-white/50">
               <FiSearch />
@@ -151,6 +176,35 @@ function UnitHeader({
             </p>
           </div>
         </div>
+
+        <div>
+          {AccessToFilter && (
+            <div>
+              <select
+                name="companyId"
+                value={companyId}
+                onChange={(e) => {
+                  setcompanyId(e.target.value);
+                }}
+                className="mb-2 w-full rounded-[10px] border border-white/20 bg-[#07090f] py-1 pr-2 placeholder:pr-2 placeholder:text-white/50"
+              >
+                <option value="" className="font-[Vazirmatn] text-xs">
+                  همه شرکت ها
+                </option>
+                {company?.companies?.map((c) => (
+                  <option
+                    key={c.id}
+                    value={c.id}
+                    className="font-[Vazirmatn] text-xs"
+                  >
+                    {c.name} - {c.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
         {/* Filters */}
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center space-x-1">

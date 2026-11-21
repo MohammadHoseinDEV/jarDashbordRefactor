@@ -31,6 +31,7 @@ const operations = [
     id: 12,
     name: 'اطمینان از آماده بکار بودن فن کولینگ ماشین و فن کولینگ کانوایر SPARE',
   },
+
   { id: 13, name: 'بازدید و چک کردن کلیه سربوبین ها و شیر برقی ها' },
   { id: 14, name: 'نظافت کامل تابلوها و بادگیری آن ها به وسیله بلوئر' },
   { id: 15, name: 'چک کردن و کنترل عایق نسوز کابل های ماشین IS ' },
@@ -52,6 +53,7 @@ function EditLineChangeCheckList({
     id: '',
     checklistDate: '',
     checklistTime: '',
+    shiftName: '',
     lineName: '',
     shiftFlags: 2,
     description: '',
@@ -75,6 +77,7 @@ function EditLineChangeCheckList({
       checklistDate: selectedCheckList?.checklistDate,
       checklistTime: normalizeTime(selectedCheckList?.checklistTime),
       lineName: selectedCheckList?.lineName,
+      shiftName: selectedCheckList?.shiftName,
       shiftFlags: selectedCheckList?.shiftFlags,
       description: selectedCheckList?.description,
       items: selectedCheckList?.items?.length
@@ -135,7 +138,7 @@ function EditLineChangeCheckList({
       />
 
       <div
-        className={`no-scrollbar relative flex max-h-[90vh] max-w-[80vw] transform flex-col overflow-auto rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-2xl:scale-95 max-md:h-160 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openEditModal
             ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'

@@ -29,15 +29,29 @@ import { FaRegEdit } from 'react-icons/fa';
 import edit from '../../../../assets/images/edit.png';
 import delet from '../../../../assets/images/delete.png';
 import form from '../../../../assets/images/form.png';
-import CreateBiWeeklyAmp from '../../components/BiWeeklyAmp/CreateBiWeeklyAmp';
-import EditBiWeeklyAmp from '../../components/BiWeeklyAmp/EditBiWeeklyAmp';
-import DeleteBiWeeklyAmp from '../../components/BiWeeklyAmp/DeleteBiWeeklyAmp';
-import FormBiWeeklyAmp from '../../components/BiWeeklyAmp/FormBiWeeklyAmp';
-import Pagination from '../../../../pagination/Pagination';
+import { MENU_URL } from '../../../../permission/menuKeys';
+import { usePermission } from '../../../../permission/usePermission';
+import { toast } from 'react-toastify';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
+
+const CreateBiWeeklyAmp = lazy(
+  () => import('../../components/BiWeeklyAmp/CreateBiWeeklyAmp')
+);
+const EditBiWeeklyAmp = lazy(
+  () => import('../../components/BiWeeklyAmp/EditBiWeeklyAmp')
+);
+const DeleteBiWeeklyAmp = lazy(
+  () => import('../../components/BiWeeklyAmp/DeleteBiWeeklyAmp')
+);
+const FormBiWeeklyAmp = lazy(
+  () => import('../../components/BiWeeklyAmp/FormBiWeeklyAmp')
+);
 
 const ReportActionBiWeeklyAmp = lazy(
   () => import('../../components/BiWeeklyAmp/ReportActionBiWeeklyAmp')
 );
+
+const Pagination = lazy(() => import('../../../../pagination/Pagination'));
 
 function BiWeeklyAmpReport() {
   const { menus: userMenus } = useSelector((s) => s.auth);
@@ -60,6 +74,7 @@ function BiWeeklyAmpReport() {
   };
 
   const perm = useMemo(() => getPerm(userMenus, 'biweekly-amp'), [userMenus]);
+
   const canCreate = can(perm, 'create');
   const canEdit = can(perm, 'edit');
   const canDelete = can(perm, 'delete');
@@ -92,12 +107,18 @@ function BiWeeklyAmpReport() {
     (p) => p.roleId === '5e6bcab8-bb18-482f-9805-477ac64fa209'
   );
 
+  const { data: permission } = useGetFullAccess();
+
+  const findCompany = permission?.companies?.[0]?.id;
+
   const {
     data: biweeklyAmp,
     isLoading,
     isError,
-  } = useGetBiweeklyAmp({ search, page, pageSize });
-  const { data: biweeklyAmpAll } = useGetAllBiweeklyAmp();
+  } = useGetBiweeklyAmp({ search, page, pageSize, companyId: findCompany });
+  const { data: biweeklyAmpAll } = useGetAllBiweeklyAmp({
+    companyId: findCompany,
+  });
 
   const allReport = biweeklyAmp?.data?.totalCount;
   const allConfirmed = biweeklyAmpAll?.data?.filter(
@@ -282,6 +303,7 @@ function BiWeeklyAmpReport() {
             </div>
           </div>
         </div>
+
         {/* Search & Filter */}
         <div className="mx-2 mt-1 flex items-center justify-between max-md:hidden">
           <div className="col-span-4 flex items-center space-x-1 pr-5">
@@ -509,216 +531,242 @@ function BiWeeklyAmpReport() {
                 </tr>
               </thead>
               <tbody>
-                {filteredData?.map((e, index) => (
-                  <tr key={e.id} className="text-center">
-                    <td className="size-5 border-b border-white/20">
-                      <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
-                        {index + 1}
-                      </p>
-                    </td>
-                    <td className="border-b border-white/20 font-[VazirLight] text-white">
-                      {e?.personnelName}
-                    </td>
-                    <td className="border-b border-white/20">
-                      {shiftLabel[e?.shiftFlags] ?? '___'}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
-                        {e?.reportNumber}
-                      </p>
-                    </td>
-                    <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
-                      <p className="pl-2 text-[20px] text-[#863515]">
-                        <FiCalendar />
-                      </p>
-
-                      {toShamsi(e?.createdAt)}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <div className="flex items-center justify-center space-x-2">
-                        <p className="text-[20px] text-[#863515]">
+                {filteredData?.length > 0 ? (
+                  filteredData?.map((e, index) => (
+                    <tr key={e.id} className="text-center">
+                      <td className="size-5 border-b border-white/20">
+                        <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
+                          {index + 1}
+                        </p>
+                      </td>
+                      <td className="border-b border-white/20 font-[VazirLight] text-white">
+                        {e?.personnelName}
+                      </td>
+                      <td className="border-b border-white/20">
+                        {shiftLabel[e?.shiftFlags] ?? '___'}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
+                          {e?.reportNumber}
+                        </p>
+                      </td>
+                      <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
+                        <p className="pl-2 text-[20px] text-[#863515]">
                           <FiCalendar />
                         </p>
-                        <p className="font-[AvenirLTProBook] text-white">
-                          {toShamsi(e?.supervisorSignedAt)}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="border-b border-white/20">
-                      {(() => {
-                        if (e?.isSupervisorSigned === true) {
-                          return (
-                            <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
-                              تکمیل شده
-                            </p>
-                          );
-                        }
-                        if (e?.isExecutorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
-                              بدون امضاء
-                            </p>
-                          );
-                        }
-                        if (e?.isSupervisorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
-                              در انتظار
-                            </p>
-                          );
-                        }
-                      })()}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <ReportActionBiWeeklyAmp
-                        report={e}
-                        canEdit={canEdit}
-                        canDelete={canDelete}
-                        openEdit={openEdit}
-                        askDelete={askDelete}
-                        setOpenFormReport={setOpenForm}
-                        setSelectedReport={setSelectedBiWeeklyAmp}
-                      />
+
+                        {toShamsi(e?.createdAt)}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <div className="flex items-center justify-center space-x-2">
+                          <p className="text-[20px] text-[#863515]">
+                            <FiCalendar />
+                          </p>
+                          <p className="font-[AvenirLTProBook] text-white">
+                            {toShamsi(e?.supervisorSignedAt)}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="border-b border-white/20">
+                        {(() => {
+                          if (e?.isSupervisorSigned === true) {
+                            return (
+                              <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
+                                تکمیل شده
+                              </p>
+                            );
+                          }
+                          if (e?.isExecutorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
+                                بدون امضاء
+                              </p>
+                            );
+                          }
+                          if (e?.isSupervisorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
+                                در انتظار
+                              </p>
+                            );
+                          }
+                        })()}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <ReportActionBiWeeklyAmp
+                          report={e}
+                          canEdit={canEdit}
+                          canDelete={canDelete}
+                          openEdit={openEdit}
+                          askDelete={askDelete}
+                          setOpenFormReport={setOpenForm}
+                          setSelectedReport={setSelectedBiWeeklyAmp}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="border-b border-white/20 py-10 text-center text-white/60 md:text-sm 2xl:text-base"
+                    >
+                      {search
+                        ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                        : 'گزارشی ثبت نشده است'}
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
             {/* Mobile design */}
             <div className="hidden w-full max-md:block">
-              {filteredData?.map((e, index) => (
-                <div
-                  key={e.id}
-                  className="mx-2 my-2 rounded-[10px] border border-white/30"
-                >
-                  <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
-                    <div className="flex items-center space-x-3">
-                      <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
-                        <FiUser />
-                      </p>
-                      <p className="flex flex-col space-y-0.5">
-                        <span className="font-bold">{e?.personnelName}</span>
-                        <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
-                          {e?.reportNumber}
-                        </span>
-                      </p>
+              {filteredData?.length > 0 ? (
+                filteredData?.map((e, index) => (
+                  <div
+                    key={e.id}
+                    className="mx-2 my-2 rounded-[10px] border border-white/30"
+                  >
+                    <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
+                      <div className="flex items-center space-x-3">
+                        <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
+                          <FiUser />
+                        </p>
+                        <p className="flex flex-col space-y-0.5">
+                          <span className="font-bold">{e?.personnelName}</span>
+                          <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
+                            {e?.reportNumber}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        {(() => {
+                          if (e?.isSupervisorSigned === true) {
+                            return (
+                              <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
+                                تکمیل شده
+                              </p>
+                            );
+                          }
+                          if (e?.isExecutorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
+                                بدون امضاء
+                              </p>
+                            );
+                          }
+                          if (e?.isSupervisorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
+                                در انتظار
+                              </p>
+                            );
+                          }
+                        })()}
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      {(() => {
-                        if (e?.isSupervisorSigned === true) {
-                          return (
-                            <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
-                              تکمیل شده
-                            </p>
-                          );
-                        }
-                        if (e?.isExecutorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
-                              بدون امضاء
-                            </p>
-                          );
-                        }
-                        if (e?.isSupervisorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
-                              در انتظار
-                            </p>
-                          );
-                        }
-                      })()}
+                    <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <FiCalendar />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">تاریخ ثبت</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {toShamsi(e?.createdAt)}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <IoTimeOutline />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">شیفت</span>
+                          <span className="font-[Samim]">
+                            {shiftLabel[e?.shiftFlags] || '__'}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <FiClock />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">امضاء سرپرست</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {toShamsi(e?.supervisorSignedAt)}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <HiHashtag />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">شماره گزارش</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {e?.reportNumber}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mx-2 grid grid-cols-7 gap-2">
+                      <button
+                        onClick={() => openEdit(e)}
+                        className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
+                          (canEdit &&
+                            profile?.data?.id === e?.createdBy &&
+                            !e?.isExecutorSigned) ||
+                          (canEdit && isSupervisor && !e?.isSupervisorSigned) ||
+                          isSuperAdmin
+                            ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                            : 'hidden '
+                        }`}
+                      >
+                        <img
+                          src={edit}
+                          alt="edit"
+                          width={20}
+                          className="mx-3 py-1"
+                        />
+                        <span className="pl-4">ویرایش</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOpenForm(true);
+                          setSelectedBiWeeklyAmp(e);
+                        }}
+                        className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
+                      >
+                        <img
+                          src={form}
+                          alt=""
+                          width={20}
+                          className="mx-3 py-1"
+                        />
+                        مشاهده
+                      </button>
+                      <button
+                        onClick={() => askDelete(e)}
+                        className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
+                          (canDelete && !e?.isSupervisorSigned) || isSuperAdmin
+                            ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                            : 'hidden '
+                        }`}
+                      >
+                        <img src={delet} alt="delet" width={20} />
+                      </button>
                     </div>
                   </div>
-                  <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <FiCalendar />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">تاریخ ثبت</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {toShamsi(e?.createdAt)}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <IoTimeOutline />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">شیفت</span>
-                        <span className="font-[Samim]">
-                          {shiftLabel[e?.shiftFlags] || '__'}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <FiClock />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">امضاء سرپرست</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {toShamsi(e?.supervisorSignedAt)}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <HiHashtag />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">شماره گزارش</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {e?.reportNumber}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-2 grid grid-cols-7 gap-2">
-                    <button
-                      onClick={() => openEdit(e)}
-                      className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
-                        (canEdit &&
-                          profile?.data?.id === e?.createdBy &&
-                          !e?.isExecutorSigned) ||
-                        (canEdit && isSupervisor && !e?.isSupervisorSigned) ||
-                        isSuperAdmin
-                          ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                          : 'hidden '
-                      }`}
-                    >
-                      <img
-                        src={edit}
-                        alt="edit"
-                        width={20}
-                        className="mx-3 py-1"
-                      />
-                      <span className="pl-4">ویرایش</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setOpenForm(true);
-                        setSelectedBiWeeklyAmp(e);
-                      }}
-                      className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
-                    >
-                      <img src={form} alt="" width={20} className="mx-3 py-1" />
-                      مشاهده
-                    </button>
-                    <button
-                      onClick={() => askDelete(e)}
-                      className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
-                        (canDelete && !e?.isSupervisorSigned) || isSuperAdmin
-                          ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                          : 'hidden '
-                      }`}
-                    >
-                      <img src={delet} alt="delet" width={20} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="mx-1 border-t border-b border-white/50 py-5 text-center text-white/50">
+                  {search
+                    ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                    : 'گزارشی ثبت نشده است'}
+                </p>
+              )}
             </div>
           </div>
         )}

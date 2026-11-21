@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useGetProfile } from '../../../../hooks/profile/profile';
 
-import close from '../../../../assets/images/close.png';
-
 import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 
 import { useCreateWeeklyAmp } from '../../Api/dailyAmpWeekly/WeeklyAmp';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
+import { toast } from 'react-toastify';
+import { IoCloseSharp } from 'react-icons/io5';
 
 const deviceList = [
   { id: 1, name: 'توزیع کننده خط1' },
@@ -56,36 +57,36 @@ const deviceList = [
   { id: 44, name: 'الکتروموتور فن 3-2 سیرکوله گرمخانه خط 1' },
   { id: 45, name: 'الکتروموتور فن 4 سیرکوله گرمخانه خط 1' },
   { id: 46, name: 'الکتروموتور فن 5 سیرکوله گرمخانه خط 1' },
-  { id: 47, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 1' },
-  { id: 48, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 1' },
-  { id: 49, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 1' },
-  { id: 50, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 1' },
-  { id: 51, name: 'الکتروموتور فن 1-1 سیرکوله گرمخانه خط 2' },
-  { id: 52, name: 'الکتروموتور فن2-1سیرکوله گرمخانه خط 2' },
-  { id: 53, name: 'الکتروموتور فن 1-3 سیرکوله گرمخانه خط 2' },
-  { id: 54, name: 'الکتروموتور فن 2-1 سیرکوله گرمخانه خط 2' },
-  { id: 55, name: 'الکتروموتور فن 2-2 سیرکوله گرمخانه خط 2' },
-  { id: 56, name: 'الکتروموتور فن 3-1 سیرکوله گرمخانه خط 2' },
-  { id: 57, name: 'الکتروموتور فن 3-2 سیرکوله گرمخانه خط 2' },
-  { id: 58, name: 'الکتروموتور فن 4 سیرکوله گرمخانه خط 2' },
-  { id: 59, name: 'الکتروموتور فن 5 سیرکوله گرمخانه خط 2' },
-  { id: 60, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 2' },
-  { id: 61, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 2' },
-  { id: 62, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 2' },
-  { id: 63, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 2' },
-  { id: 64, name: 'الکتروموتور فن 1-1 سیرکوله گرمخانه خط 3' },
-  { id: 65, name: 'الکتروموتور فن 1-2 سیرکوله گرمخانه خط 3' },
-  { id: 66, name: 'الکتروموتور فن 1-3 سیرکوله گرمخانه خط 3' },
-  { id: 67, name: 'الکتروموتور فن 2-1 سیرکوله گرمخانه خط 3' },
-  { id: 68, name: 'الکتروموتور فن 2-2 سیرکوله گرمخانه خط 3' },
-  { id: 69, name: 'الکتروموتور فن 3-1 سیرکوله گرمخانه خط 3' },
-  { id: 70, name: 'الکتروموتور فن 3-2 سیرکوله گرمخانه خط 3' },
-  { id: 71, name: 'الکتروموتور فن 4 سیرکوله گرمخانه خط 3' },
-  { id: 72, name: 'الکتروموتور فن 5 سیرکوله گرمخانه خط 3' },
-  { id: 73, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 3' },
-  { id: 74, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 3' },
-  { id: 75, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 3' },
-  { id: 76, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 3' },
+  { id: 73, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 1' },
+  { id: 74, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 1' },
+  { id: 75, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 1' },
+  { id: 76, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 1' },
+  { id: 47, name: 'الکتروموتور فن 1-1 سیرکوله گرمخانه خط 2' },
+  { id: 48, name: 'الکتروموتور فن2-1سیرکوله گرمخانه خط 2' },
+  { id: 49, name: 'الکتروموتور فن 1-3 سیرکوله گرمخانه خط 2' },
+  { id: 50, name: 'الکتروموتور فن 2-1 سیرکوله گرمخانه خط 2' },
+  { id: 51, name: 'الکتروموتور فن 2-2 سیرکوله گرمخانه خط 2' },
+  { id: 52, name: 'الکتروموتور فن 3-1 سیرکوله گرمخانه خط 2' },
+  { id: 53, name: 'الکتروموتور فن 3-2 سیرکوله گرمخانه خط 2' },
+  { id: 54, name: 'الکتروموتور فن 4 سیرکوله گرمخانه خط 2' },
+  { id: 55, name: 'الکتروموتور فن 5 سیرکوله گرمخانه خط 2' },
+  { id: 56, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 2' },
+  { id: 57, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 2' },
+  { id: 58, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 2' },
+  { id: 59, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 2' },
+  { id: 60, name: 'الکتروموتور فن 1-1 سیرکوله گرمخانه خط 3' },
+  { id: 61, name: 'الکتروموتور فن 1-2 سیرکوله گرمخانه خط 3' },
+  { id: 62, name: 'الکتروموتور فن 1-3 سیرکوله گرمخانه خط 3' },
+  { id: 63, name: 'الکتروموتور فن 2-1 سیرکوله گرمخانه خط 3' },
+  { id: 64, name: 'الکتروموتور فن 2-2 سیرکوله گرمخانه خط 3' },
+  { id: 65, name: 'الکتروموتور فن 3-1 سیرکوله گرمخانه خط 3' },
+  { id: 66, name: 'الکتروموتور فن 3-2 سیرکوله گرمخانه خط 3' },
+  { id: 67, name: 'الکتروموتور فن 4 سیرکوله گرمخانه خط 3' },
+  { id: 68, name: 'الکتروموتور فن 5 سیرکوله گرمخانه خط 3' },
+  { id: 69, name: 'الکتروموتور فن 6 سیرکوله گرمخانه خط 3' },
+  { id: 70, name: 'الکتروموتور فن 7 سیرکوله گرمخانه خط 3' },
+  { id: 71, name: 'الکتروموتور فن 8-1 سیرکوله گرمخانه خط 3' },
+  { id: 72, name: 'الکتروموتور فن 8-2 سیرکوله گرمخانه خط 3' },
   { id: 77, name: 'الکتروگیربکس  کانوایر 2 پالتایزر خط 1' },
   { id: 78, name: 'الکتروگیربکس  کانوایر 3 پالتایزر خط1' },
   { id: 79, name: 'الکتروگیربکس  کانوایر 4 پالتایزر خط1' },
@@ -180,26 +181,29 @@ const deviceList = [
   { id: 171, name: 'الکترو گیربکس کوتینگ سرد خط 1' },
   { id: 172, name: 'الکترو گیربکس کوتینگ سرد خط 2' },
   { id: 173, name: 'الکترو گیربکس کوتینگ سرد خط 3' },
-  { id: 174, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هاوس سمت چپ' },
-  { id: 175, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هاوس سمت راست' },
+  { id: 174, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هاوس سمت چپ ( (L' },
+  { id: 175, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هس سمت راست ( (R' },
 ];
 
+const initialState = {
+  companyId: '',
+  reportDate: '',
+  shiftName: '',
+  personnelName: '',
+  shiftFlags: 2,
+  items: deviceList.map((d) => ({
+    deviceName: d.name,
+    frequency: 0,
+    power: 0,
+    t: 0,
+    s: 0,
+    r: 0,
+    orderIndex: d.id,
+  })),
+};
+
 function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
-  const [form, setForm] = useState({
-    reportDate: '',
-    shiftName: '',
-    personnelName: '',
-    shiftFlags: 2,
-    items: deviceList.map((d) => ({
-      deviceName: d.name,
-      frequency: 0,
-      power: 0,
-      t: 0,
-      s: 0,
-      r: 0,
-      orderIndex: d.id,
-    })),
-  });
+  const [form, setForm] = useState(initialState);
 
   const handleItemChange = (index, field, value) => {
     setForm((prev) => {
@@ -209,33 +213,63 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
     });
   };
 
-  const { data: profile } = useGetProfile();
+  const { data: profile, isLoading: profileLoading } = useGetFullAccess();
+  const findCompany = profile?.companies?.find((c) => c.id);
 
   useEffect(() => {
-    if (profile?.data?.currentShift?.shiftName) {
+    if (profile?.currentShift?.name) {
       setForm((p) => ({
         ...p,
-        shiftName: profile?.data?.currentShift?.shiftName,
+        shiftName: profile?.currentShift?.name,
       }));
     }
 
-    if (profile?.data?.fullName) {
+    if (profile?.firstName || profile?.lastName) {
       setForm((p) => ({
         ...p,
-        personnelName: profile?.data?.fullName,
+        personnelName:
+          `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
       }));
     }
   }, [profile]);
 
+  const resetForm = () => {
+    setForm({
+      ...initialState,
+      shiftName: profile?.currentShift?.name ?? '',
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+    });
+  };
+
   const closeHandler = () => {
     setOpenCreateModal(false);
+    resetForm();
   };
 
   const createReport = useCreateWeeklyAmp();
 
   const submitHandler = (e) => {
     e.preventDefault();
-    createReport.mutate(form, {
+
+    if (!form.reportDate) {
+      toast.warning('تاریخ گزارش را انتخاب کنید');
+      return;
+    }
+
+    if (profileLoading || !profile) {
+      toast.warning('اطلاعات کاربر هنوز بارگذاری نشده.لطفا صبر کنید');
+      return;
+    }
+
+    const payload = {
+      ...form,
+      companyId: findCompany?.id,
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+      shiftName: profile?.currentShift?.name,
+    };
+    createReport.mutate(payload, {
       onSuccess: () => {
         closeHandler();
       },
@@ -244,7 +278,7 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex h-screen items-center justify-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
         openCreateModal
           ? 'pointer-events-auto opacity-100 '
           : 'pointer-events-none opacity-0'
@@ -255,7 +289,7 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] max-w-[95vw] transform flex-col rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-2xl:scale-95 max-md:h-180 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openCreateModal
             ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
@@ -266,17 +300,14 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
           <p className="pr-1.5 font-[SamimBold] text-[20px]">
             ایجاد گزارش جدید
           </p>
-          <button
+          <p
             onClick={closeHandler}
-            className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+            className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
           >
-            <img
-              src={close}
-              alt="close"
-              width={20}
-              className="transition-all delay-100 duration-100 ease-in-out hover:scale-110"
-            />
-          </button>
+            <span>
+              <IoCloseSharp />
+            </span>
+          </p>
         </div>
         <form
           id="weeklyAmpForm"
@@ -293,6 +324,7 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
                 placeholder="تاریخ ثبت گزارش"
                 format="YYYY/MM/DD"
                 calendarPosition="bottom-center"
+                value={form.reportDate ? new Date(form.reportDate) : ''}
                 onChange={(value) => {
                   setForm({
                     ...form,
@@ -513,11 +545,18 @@ function CreateWeeklyAmp({ openCreateModal, setOpenCreateModal }) {
             ))}
           </div>
         </form>
-        <div>
+        <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
           <button
             type="submit"
             form="weeklyAmpForm"
-            className="w-full cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-[1.01]"
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ثبت گزارش
           </button>

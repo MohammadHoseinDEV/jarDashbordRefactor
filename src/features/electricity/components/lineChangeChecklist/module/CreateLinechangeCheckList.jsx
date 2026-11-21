@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useGetProfile } from '../../../../../hooks/profile/profile';
 import CreateLineChangeCheckListJsx from '../template/CreateLineChangeCheckListJsx';
 import { useCreateLineChangeCheckList } from '../../../Api/LineChangeCheckList/lineChangeCheckList';
+import { useGetFullAccess } from '../../../../../hooks/auth/authApi';
+import { toast } from 'react-toastify';
 
 const operations = [
   { id: 1, name: 'بازدید و چک کردن سربندی موتورها' },
@@ -41,11 +43,12 @@ const operations = [
   },
 ];
 
-const initioalState = {
+const initialState = {
   companyId: '',
   checklistDate: '',
   checklistTime: '',
   lineName: '',
+  shiftName: '',
   shiftFlags: 2,
   description: '',
   items: operations?.map((e) => ({
@@ -57,30 +60,41 @@ const initioalState = {
 };
 
 function CreateLinechangeCheckList({ openCreateModal, setOpenCreateModal }) {
-  const [form, setForm] = useState(initioalState);
+  const [form, setForm] = useState(initialState);
 
-  const { data: profile } = useGetProfile();
+  const { data: profile, isLoading: profileLoading } = useGetFullAccess();
 
-  const findcompany = profile?.data?.companyRoles.find(
-    (c) => c.companyId
-  )?.companyId;
+  const findCompany = profile?.companies?.find((c) => c.id);
 
   useEffect(() => {
-    if (!profile?.data) return;
-    setForm((p) => ({
-      ...p,
-      companyId: findcompany,
-      description: profile?.data?.currentShift?.shiftName,
-    }));
+    if (profile?.currentShift?.name) {
+      setForm((p) => ({
+        ...p,
+        shiftName: profile?.currentShift?.name,
+      }));
+    }
+
+    if (profile?.firstName || profile?.lastName) {
+      setForm((p) => ({
+        ...p,
+        personnelName:
+          `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+      }));
+    }
   }, [profile]);
+
+  const resetForm = () => {
+    setForm({
+      ...initialState,
+      shiftName: profile?.currentShift?.name ?? '',
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+    });
+  };
 
   const closeHandler = () => {
     setOpenCreateModal(false);
-    setForm({
-      ...initioalState,
-      companyId: findcompany,
-      description: profile?.data?.currentShift?.shiftName || '',
-    });
+    resetForm();
   };
 
   const createReport = useCreateLineChangeCheckList();
@@ -90,8 +104,22 @@ function CreateLinechangeCheckList({ openCreateModal, setOpenCreateModal }) {
   const submitHandler = (e) => {
     e.preventDefault();
 
+    if (!form.checklistDate) {
+      toast.warning('تاریخ گزارش را انتخاب کنید');
+      return;
+    }
+
+    if (profileLoading || !profile) {
+      toast.warning('اطلاعات کاربر هنوز بارگذاری نشده.لطفا صبر کنید');
+      return;
+    }
+
     const payload = {
       ...form,
+      companyId: findCompany?.id,
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+      shiftName: profile?.currentShift?.name,
       checklistTime: toHHmmss(form.checklistTime),
     };
 
@@ -115,9 +143,9 @@ function CreateLinechangeCheckList({ openCreateModal, setOpenCreateModal }) {
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] min-h-0 max-w-[80vw] transform flex-col overflow-hidden rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-2xl:scale-95 max-md:h-160 ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openCreateModal
-            ? 'translate-y-0 scale-100 opacity-100'
+            ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >

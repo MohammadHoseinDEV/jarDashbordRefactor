@@ -8,8 +8,15 @@ import {
   FaFilter,
   FaPlus,
 } from 'react-icons/fa';
-import { FiBell, FiCalendar, FiClock, FiSearch, FiUser } from 'react-icons/fi';
-import { MdNoteAdd, MdNumbers } from 'react-icons/md';
+import {
+  FiBell,
+  FiCalendar,
+  FiClock,
+  FiEdit,
+  FiSearch,
+  FiUser,
+} from 'react-icons/fi';
+import { MdDeleteOutline, MdNoteAdd, MdNumbers } from 'react-icons/md';
 import { can, getPerm } from '../../../../utils/rbac';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -31,9 +38,12 @@ import Pagination from '../../../../pagination/Pagination';
 import edit from '../../../../assets/images/edit.png';
 import form from '../../../../assets/images/form.png';
 import delet from '../../../../assets/images/delete.png';
+import { SiGoogleforms } from 'react-icons/si';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
 const EditControlChecklist = lazy(
   () => import('../../components/controlChecklist/EditControlChecklist')
 );
+
 const DeleteControlChecklist = lazy(
   () => import('../../components/controlChecklist/DeleteControlChecklist')
 );
@@ -103,12 +113,23 @@ function ControlChecklistReport() {
     (p) => p.roleId === 'cfa79204-d797-4241-8630-55fcc1b2f721'
   );
 
+  const { data: permission } = useGetFullAccess();
+
+  const findCompany = permission?.companies?.[0]?.id;
+
   const {
     data: checklist,
     isLoading,
     isError,
-  } = useGetControlChecklistReport({ search, page, pageSize });
-  const { data: checklistAll } = useGetAllControlChecklistReport();
+  } = useGetControlChecklistReport({
+    search,
+    page,
+    pageSize,
+    companyId: findCompany,
+  });
+  const { data: checklistAll } = useGetAllControlChecklistReport({
+    companyId: findCompany,
+  });
 
   const allReport = checklist?.data?.totalCount;
   const allConfirmed = checklistAll?.data?.filter(
@@ -373,7 +394,7 @@ function ControlChecklistReport() {
               <p className="rounded-[10px] bg-[#4f46e5] p-2">
                 <FaBolt />
               </p>
-              <p className="text-[14px] font-bold">
+              <p className="text-xs font-bold">
                 چک لیست کنترل اتاق های پست ، توزیع و فرمان
               </p>
             </div>
@@ -400,8 +421,8 @@ function ControlChecklistReport() {
             </div>
           </div>
           {/* Search input */}
-          <div className="relative flex w-full justify-between gap-1">
-            <div>
+          <div className="relative my-2 grid grid-cols-3 gap-2">
+            <div className="col-span-2">
               <input
                 type="text"
                 value={search}
@@ -409,7 +430,7 @@ function ControlChecklistReport() {
                 onChange={(e) => {
                   setSearch(e.target.value);
                 }}
-                className="mb-3 h-11 rounded-[10px] border border-[#2c3050] bg-[#22263a] pr-8 font-bold"
+                className="h-10 w-full rounded-[10px] border border-white/10 bg-white/5 pr-8 font-[Vazirmatn] text-xs font-semibold"
               />
               <p className="absolute top-3 right-2 text-white/50">
                 <FiSearch />
@@ -520,218 +541,237 @@ function ControlChecklistReport() {
                 </tr>
               </thead>
               <tbody>
-                {filteredData?.map((e, index) => (
-                  <tr key={e.id} className="text-center">
-                    <td className="size-5 border-b border-white/20">
-                      <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
-                        {index + 1}
-                      </p>
-                    </td>
+                {filteredData?.length > 0 ? (
+                  filteredData?.map((e, index) => (
+                    <tr key={e.id} className="text-center">
+                      <td className="size-5 border-b border-white/20">
+                        <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
+                          {index + 1}
+                        </p>
+                      </td>
 
-                    <td className="border-b border-white/20 font-[VazirLight] text-white">
-                      {e?.personnelName}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <p className="font-[Samim] text-white">
-                        {shiftLabel[e?.shiftFlags] ?? '__'}
-                      </p>
-                    </td>
-                    <td className="border-b border-white/20">
-                      <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
-                        {e?.checklistNumber}
-                      </p>
-                    </td>
-                    <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
-                      <p className="pl-2 text-[20px] text-[#863515]">
-                        <FiCalendar />
-                      </p>
-                      {toShamsi(e?.createdAt)}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <div className="flex items-center justify-center space-x-2">
-                        <p className="text-[20px] text-[#863515]">
+                      <td className="border-b border-white/20 font-[VazirLight] text-white">
+                        {e?.personnelName}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <p className="font-[Samim] text-white">
+                          {shiftLabel[e?.shiftFlags] ?? '__'}
+                        </p>
+                      </td>
+                      <td className="border-b border-white/20">
+                        <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
+                          {e?.checklistNumber}
+                        </p>
+                      </td>
+                      <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
+                        <p className="pl-2 text-[20px] text-[#863515]">
                           <FiCalendar />
                         </p>
-                        <p className="font-[AvenirLTProBook] text-white">
-                          {toShamsi(e?.supervisorSignedAt)}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="border-b border-white/20">
-                      {(() => {
-                        if (e?.isSupervisorSigned === true) {
-                          return (
-                            <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
-                              تکمیل شده
-                            </p>
-                          );
-                        }
-                        if (e?.isExecutorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
-                              بدون امضاء
-                            </p>
-                          );
-                        }
-                        if (e?.isSupervisorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
-                              در انتظار
-                            </p>
-                          );
-                        }
-                      })()}
-                    </td>
-                    <td className="border-b border-white/20">
-                      <ReportsActionControlChecklist
-                        report={e}
-                        canEdit={canEdit}
-                        canDelete={canDelete}
-                        openEdit={openEdit}
-                        askDelete={askDelete}
-                        setOpenFormReport={setOpenForm}
-                        setSelectedReport={setSelectedControlChecklist}
-                      />
+                        {toShamsi(e?.createdAt)}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <div className="flex items-center justify-center space-x-2">
+                          <p className="text-[20px] text-[#863515]">
+                            <FiCalendar />
+                          </p>
+                          <p className="font-[AvenirLTProBook] text-white">
+                            {toShamsi(e?.supervisorSignedAt)}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="border-b border-white/20">
+                        {(() => {
+                          if (e?.isSupervisorSigned === true) {
+                            return (
+                              <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
+                                تکمیل شده
+                              </p>
+                            );
+                          }
+                          if (e?.isExecutorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
+                                بدون امضاء
+                              </p>
+                            );
+                          }
+                          if (e?.isSupervisorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
+                                در انتظار
+                              </p>
+                            );
+                          }
+                        })()}
+                      </td>
+                      <td className="border-b border-white/20">
+                        <ReportsActionControlChecklist
+                          report={e}
+                          canEdit={canEdit}
+                          canDelete={canDelete}
+                          openEdit={openEdit}
+                          askDelete={askDelete}
+                          setOpenFormReport={setOpenForm}
+                          setSelectedReport={setSelectedControlChecklist}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="border-b border-white/20 py-10 text-center text-white/60 md:text-sm 2xl:text-base"
+                    >
+                      {search
+                        ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                        : 'گزارشی ثبت نشده است'}
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
             {/* Mobile design */}
             <div className="hidden w-full max-md:block">
-              {filteredData?.map((e, index) => (
-                <div
-                  key={e.id}
-                  className="mx-2 my-2 rounded-[10px] border border-white/30"
-                >
-                  <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
-                    <div className="flex items-center space-x-3">
-                      <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
-                        <FiUser />
-                      </p>
-                      <p className="flex flex-col space-y-0.5">
-                        <span className="font-bold">{e?.personnelName}</span>
-                        <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
-                          {e?.checklistNumber}
-                        </span>
-                      </p>
+              {filteredData?.length > 0 ? (
+                filteredData?.map((e, index) => (
+                  <div
+                    key={e.id}
+                    className="mx-2 my-2 rounded-[10px] border border-white/30"
+                  >
+                    <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
+                      <div className="flex items-center space-x-3">
+                        <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
+                          <FiUser />
+                        </p>
+                        <p className="flex flex-col space-y-0.5">
+                          <span className="font-bold">{e?.personnelName}</span>
+                          <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
+                            {e?.checklistNumber}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        {(() => {
+                          if (e?.isSupervisorSigned === true) {
+                            return (
+                              <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
+                                تکمیل شده
+                              </p>
+                            );
+                          }
+                          if (e?.isExecutorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
+                                بدون امضاء
+                              </p>
+                            );
+                          }
+                          if (e?.isSupervisorSigned === false) {
+                            return (
+                              <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
+                                در انتظار
+                              </p>
+                            );
+                          }
+                        })()}
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      {(() => {
-                        if (e?.isSupervisorSigned === true) {
-                          return (
-                            <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
-                              تکمیل شده
-                            </p>
-                          );
-                        }
-                        if (e?.isExecutorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
-                              بدون امضاء
-                            </p>
-                          );
-                        }
-                        if (e?.isSupervisorSigned === false) {
-                          return (
-                            <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
-                              در انتظار
-                            </p>
-                          );
-                        }
-                      })()}
+                    <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <FiCalendar />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">تاریخ ثبت</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {toShamsi(e?.createdAt)}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <IoTimeOutline />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">شیفت</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {shiftLabel[e?.shiftFlags] || '__'}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <FiClock />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">امضاء سرپرست</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {toShamsi(e?.supervisorSignedAt)}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-[22px] text-white/50">
+                          <HiHashtag />
+                        </p>
+                        <p className="flex flex-col">
+                          <span className="text-white/50">شماره گزارش</span>
+                          <span className="font-[AvenirLTProMedium]">
+                            {e?.checklistNumber}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mx-2 grid grid-cols-7 gap-2">
+                      <button
+                        onClick={() => openEdit(e)}
+                        className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
+                          canEdit
+                            ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                            : 'hidden bg-white/5 opacity-50'
+                        }`}
+                      >
+                        <p className="pl-2 text-lg text-green-500">
+                          <FiEdit />
+                        </p>
+
+                        <span className="pl-4">ویرایش</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOpenForm(true);
+                          setSelectedControlChecklist(e);
+                        }}
+                        className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
+                      >
+                        <p className="pl-2 text-xl text-white/80">
+                          <SiGoogleforms />
+                        </p>
+                        مشاهده
+                      </button>
+                      <button
+                        onClick={() => askDelete(e)}
+                        className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
+                          canDelete
+                            ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                            : 'hidden bg-white/5 opacity-50'
+                        }`}
+                      >
+                        <p className="text-xl text-red-600">
+                          <MdDeleteOutline />
+                        </p>
+                      </button>
                     </div>
                   </div>
-                  <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <FiCalendar />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">تاریخ ثبت</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {toShamsi(e?.createdAt)}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <IoTimeOutline />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">شیفت</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {shiftLabel[e?.shiftFlags] || '__'}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <FiClock />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">امضاء سرپرست</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {toShamsi(e?.supervisorSignedAt)}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-[22px] text-white/50">
-                        <HiHashtag />
-                      </p>
-                      <p className="flex flex-col">
-                        <span className="text-white/50">شماره گزارش</span>
-                        <span className="font-[AvenirLTProMedium]">
-                          {e?.checklistNumber}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mx-2 grid grid-cols-7 gap-2">
-                    <button
-                      onClick={() => openEdit(e)}
-                      className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
-                        (canEdit &&
-                          profile?.data?.id === e?.createdBy &&
-                          e?.isSupervisorSigned === false) ||
-                        (canEdit && isSupervisor) ||
-                        isSuperAdmin
-                          ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                          : 'hidden bg-white/5 opacity-50'
-                      }`}
-                    >
-                      <img
-                        src={edit}
-                        alt="edit"
-                        width={20}
-                        className="mx-3 py-1"
-                      />
-                      <span className="pl-4">ویرایش</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setOpenForm(true);
-                        setSelectedControlChecklist(e);
-                      }}
-                      className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
-                    >
-                      <img src={form} alt="" width={20} className="mx-3 py-1" />
-                      مشاهده
-                    </button>
-                    <button
-                      onClick={() => askDelete(e)}
-                      className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
-                        canDelete
-                          ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                          : 'hidden bg-white/5 opacity-50'
-                      }`}
-                    >
-                      <img src={delet} alt="" width={20} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="mx-1 border-t border-b border-white/50 py-5 text-center text-white/50">
+                  {search
+                    ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                    : 'گزارشی ثبت نشده است'}
+                </p>
+              )}
             </div>
           </div>
         )}

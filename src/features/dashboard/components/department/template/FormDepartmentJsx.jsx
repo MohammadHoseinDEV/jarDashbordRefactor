@@ -26,7 +26,6 @@ function FormDepartmentJsx({
   setsearchHolding,
 }) {
   const isActive = watch('isActive');
-  
 
   const activeholding = useMemo(
     () => (filterholding ?? []).filter((c) => c.isActive === true),

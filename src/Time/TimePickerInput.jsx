@@ -133,7 +133,7 @@ export default function TimePickerInput({
   }, [open]);
 
   const baseInput =
-    'w-full rounded-xl bg-white/10 px-3 py-3 font-[AvenirLTProMedium] placeholder:font-[Samim]  text-[18px] text-white outline-none ' +
+    'w-full rounded-xl bg-white/5 px-3 py-3 font-[AvenirLTProMedium] placeholder:font-[Vazirmatn]  text-[18px] text-white outline-none ' +
     'placeholder:text-white/50 focus:bg-white/15';
 
   return (

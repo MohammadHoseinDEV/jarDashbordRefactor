@@ -6,19 +6,25 @@ import close from '../../../../assets/images/close.png';
 import { toShamsi } from '../../../../Time/date';
 import { useGetMenu } from '../../../../hooks/menu/menuApi';
 import { findMenu } from '../../../../utils/rbac';
-import { useGetPermissionSignature } from '../../../../hooks/user/userApi';
+import {
+  useGetImageSign,
+  useGetPermissionSignature,
+} from '../../../../hooks/user/userApi';
 import { useGetProfile } from '../../../../hooks/profile/profile';
 import { useGetSignatureId } from '../../../../hooks/Signature/Signature';
 import {
   useCreateSignProducer,
   useCreateSignSupervisor,
 } from '../../Api/earthWell/earthWell';
+import { useGetCompanyLogo } from '../../../../hooks/company/companiApi';
+import { MENU_URL } from '../../../../permission/menuKeys';
+import { useSignatureAccess } from '../../../../hooks/userSignatureAccess';
+import { LuPencil } from 'react-icons/lu';
+import { IoCloseSharp } from 'react-icons/io5';
 
 function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [selectedSignProducer, setSelectedSignProducer] = useState(null);
-  const [selectedSignSupervisor, setSelectedSignSupervisor] = useState(null);
   const [openCode, setOpenCode] = useState(false);
   const [password, setPassword] = useState('');
   const [signatureType, setSignatureType] = useState(null);
@@ -30,71 +36,38 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
   const closeHandler = () => {
     setOpenForm(false);
   };
+  // --------------------------------------------------------
+  // Logo
+  const { data: companyLogo } = useGetCompanyLogo(
+    selectedEarthWell?.companyId,
+    openForm && !!selectedEarthWell?.companyId
+  );
 
-  // ---------------------------------------------------------------------
+  const logoSrc =
+    companyLogo?.success && companyLogo?.imageBase64
+      ? `data:${companyLogo.contentType};base64,${companyLogo.imageBase64}`
+      : logo;
+  // --------------------------------------------------------
   // Sign
-  // دسترسی امضاء
-  const { data: menu } = useGetMenu();
-  const earthWellMenu = findMenu(menu?.menus ?? [], 'visit-earthWell');
-  const menuId = earthWellMenu?.id;
+  const { canSign } = useSignatureAccess(MENU_URL.VISIT_EARTH_WELL);
+  const canSignExecutor = canSign('executor');
+  const canSignSuperVisor = canSign('pm-supervisor');
 
-  const { data: permission } = useGetPermissionSignature(userInfo?.userId);
-  const canSign = permission?.data?.some(
-    (p) => p.menuId === menuId && p.canSignature === true
-  );
-  // ---------------------------------------------------------------------
-  // دسترسی های پیشرفته
-  const { data: profile } = useGetProfile();
-  // isShiftSupervisorSigned
-  const isProducer = selectedEarthWell?.createdBy === profile?.data?.id;
-  const canSignProducer = canSign && isProducer;
-
-  // isSupervisorSigned
-  const isSupervisor = profile?.data?.companyRoles?.some(
-    (p) =>
-      p.roleId === 'c3dab3b9-f727-4b6f-a7fb-fc0f5970dd04' ||
-      p.roleId === '4db3846f-d8c1-4b9e-a710-62c7514cfd3c'
-  );
-  const canSignSupervisor = canSign && isSupervisor;
-  // ---------------------------------------------------------------------
-  // گرفتن عکس امضاء کاربران برای نمایش با ID کاربران
-  const { data: signProducer } = useGetSignatureId(
+  const { data: signExecutor } = useGetImageSign(
     selectedEarthWell?.executorSignedByUserId
   );
-  const { data: signSupervisor } = useGetSignatureId(
+  const { data: signSupervisor } = useGetImageSign(
     selectedEarthWell?.pmSupervisorSignedByUserId
   );
-  // ---------------------------------------------------------------------
-  useEffect(() => {
-    if (
-      selectedEarthWell?.isExecutorSigned === true &&
-      signProducer?.data?.signatureImageBase64
-    ) {
-      setSelectedSignProducer(signProducer?.data?.signatureImageBase64);
-    } else {
-      setSelectedSignProducer(null);
-    }
 
-    if (
-      selectedEarthWell?.isPMSupervisorSigned === true &&
-      signSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedSignSupervisor(signSupervisor?.data?.signatureImageBase64);
-    } else {
-      setSelectedSignSupervisor(null);
-    }
-  }, [
-    signProducer,
-    signSupervisor,
-    selectedEarthWell?.isShiftSupervisorSigned,
-    selectedEarthWell?.isPMSupervisorSigned,
-  ]);
+  const executorSignature = signExecutor?.data?.signatureImageBase64;
+  const supervisorSignature = signSupervisor?.data?.signatureImageBase64;
 
   const createSignProducer = useCreateSignProducer();
   const createSignSupervisor = useCreateSignSupervisor();
 
   const handleSubmitSign = () => {
-    if (signatureType === 'producer') {
+    if (signatureType === 'executor') {
       createSignProducer.mutate(
         {
           id: selectedEarthWell?.id,
@@ -108,7 +81,7 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
         }
       );
     }
-    if (signatureType === 'supervisor') {
+    if (signatureType === 'pm-supervisor') {
       createSignSupervisor.mutate(
         {
           id: selectedEarthWell?.id,
@@ -123,6 +96,7 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
       );
     }
   };
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
@@ -138,14 +112,18 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
       <div
         className={`relative transform rounded-[15px] bg-white p-6 text-white shadow-2xl transition-all duration-300 ${
           openForm
-            ? 'translate-y-0 scale-110 opacity-100 max-2xl:scale-70 max-md:scale-60 print:scale-97 '
+            ? 'translate-y-0 scale-110 opacity-100 max-2xl:scale-70 max-md:scale-58 print:scale-97 '
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >
         <div className="h-[749px] w-[560px] bg-white text-black print:scale-87">
           <div className="grid grid-cols-4">
             <div className="flex items-center justify-center border">
-              <img src={logo} alt="logo" width={80} />
+              <img
+                src={logoSrc}
+                alt="logo"
+                className="h-12 w-22 object-contain"
+              />
             </div>
             <div className="col-span-2 flex items-center justify-center border-t border-b border-l">
               <h1 className="font-[SamimBold] text-[14px]">
@@ -211,59 +189,71 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-around pt-8">
-            <div>
-              <p>امضاء مجری :</p>
+
+          <div className="mt-5 grid grid-cols-2 justify-center gap-5 text-center">
+            <div
+              className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedEarthWell?.isExecutorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+            >
+              <p className="space-x-1 text-xs">
+                <span>امضاء مجری :</span>
+                <span className="font-[Vazirmatn] font-semibold">
+                  {selectedEarthWell?.executorSignedByFullName}
+                </span>
+              </p>
               <p>
-                {selectedSignProducer ? (
+                {executorSignature ? (
                   <img
-                    src={`data:image/png;base64,${selectedSignProducer}`}
+                    src={`data:image/png;base64,${executorSignature}`}
                     alt="signature"
-                    className="fixed right-50 bottom-1 h-27 w-35"
+                    className="absolute right-1/3 bottom-0 h-20 object-contain"
                   />
-                ) : canSignProducer ? (
+                ) : canSignExecutor && !selectedEarthWell?.isExecutorSigned ? (
                   <button
-                    onClick={() => handleOpenSignatureModal('producer')}
-                    className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                    onClick={() => handleOpenSignatureModal('executor')}
+                    className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                   >
-                    ثبت امضاء
+                    <span>ثبت امضاء</span>
+                    <LuPencil />
                   </button>
-                ) : (
-                  <span className="rounded-[10px] bg-red-500 p-1 text-[10px]">
-                    عدم دسترسی
-                  </span>
-                )}
+                ) : null}
               </p>
             </div>
-            <div>
-              <p>امضاء سرپرست P.M :</p>
+            <div
+              className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedEarthWell?.isPMSupervisorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+            >
+              <p className="text-xs">
+                <span>امضاء سرپرست P.M :</span>
+                <span className="font-[Vazirmatn] font-semibold">
+                  {selectedEarthWell?.pmSupervisorSignedByFullName}
+                </span>
+              </p>
               <p>
-                {selectedSignSupervisor ? (
+                {supervisorSignature ? (
                   <img
-                    src={`data:image/png;base64,${selectedSignSupervisor}`}
+                    src={`data:image/png;base64,${supervisorSignature}`}
                     alt="signature"
-                    className="fixed bottom-1 left-0 h-27 w-35"
+                    className="absolute bottom-0 left-1/3 h-20 object-contain"
                   />
-                ) : canSignSupervisor ? (
+                ) : canSignSuperVisor &&
+                  !selectedEarthWell?.isPMSupervisorSigned ? (
                   <button
-                    onClick={() => handleOpenSignatureModal('supervisor')}
-                    className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                    onClick={() => handleOpenSignatureModal('pm-supervisor')}
+                    className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                   >
-                    ثبت امضاء
+                    <span>ثبت امضاء</span>
+                    <LuPencil />
                   </button>
-                ) : (
-                  <span className="rounded-[10px] bg-red-500 p-1 text-[10px]">
-                    عدم دسترسی
-                  </span>
-                )}
+                ) : null}
               </p>
             </div>
           </div>
         </div>
       </div>
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
-          openCode ? 'opacity-100' : 'pointer-events-none opacity-0'
+        className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
+          openCode
+            ? 'pointer-events-auto opacity-100 '
+            : 'pointer-events-none opacity-0'
         }`}
       >
         <div
@@ -273,22 +263,24 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
           }}
         />
         <div
-          className={`relative transform rounded-[15px] bg-linear-to-br from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 ${
+          className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
             openCode
-              ? 'translate-y-0 scale-100 opacity-100'
+              ? ' translate-y-0 scale-100 opacity-100'
               : '-translate-y-10 scale-0 opacity-0'
           }`}
         >
           <div className="flex items-center justify-between pb-5">
             <h1>کد امضاء</h1>
-            <span
+            <p
               onClick={() => {
                 setOpenCode(false);
               }}
-              className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+              className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
             >
-              <img src={close} alt="close" width={20} />
-            </span>
+              <span>
+                <IoCloseSharp />
+              </span>
+            </p>
           </div>
           <input
             type="text"
@@ -300,12 +292,14 @@ function FormEarthWell({ openForm, setOpenForm, selectedEarthWell }) {
             }}
             className="m-2 w-full rounded-xl bg-white/10 p-3 font-[Samim] text-[18px] text-white outline-none"
           />
-          <button
-            onClick={handleSubmitSign}
-            className="float-left mt-2 cursor-pointer rounded-[10px] bg-green-500 p-2 transition-all delay-75 duration-100 hover:bg-green-700"
-          >
-            تایید
-          </button>
+          <div className="flex items-center justify-end">
+            <button
+              onClick={handleSubmitSign}
+              className={`cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50 ${password === '' ? 'cursor-not-allowed opacity-50' : ''}`}
+            >
+              تایید
+            </button>
+          </div>
         </div>
       </div>
     </div>

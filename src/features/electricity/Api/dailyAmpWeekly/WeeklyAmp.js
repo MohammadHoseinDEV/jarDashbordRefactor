@@ -6,15 +6,15 @@ import { toast } from 'react-toastify';
 
 const BASE_API = `http://localhost:5273/api/WeeklyAmperageReport`;
 
-export const useGetWeeklyAmp = ({ search, page, pageSize }) => {
+export const useGetWeeklyAmp = ({ search, page, pageSize, companyId } = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['weekly', token, search, page, pageSize],
+    queryKey: ['weekly', token, search, page, pageSize, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/all`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { search, page, pageSize },
+        params: { search, page, pageSize, companyId },
       });
       return res.data;
     },
@@ -22,14 +22,15 @@ export const useGetWeeklyAmp = ({ search, page, pageSize }) => {
   return getReport;
 };
 
-export const useGetAllWeeklyAmp = () => {
+export const useGetAllWeeklyAmp = ({ companyId } = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['weekly', token],
+    queryKey: ['weekly', token, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/simple`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { companyId },
       });
       return res.data;
     },

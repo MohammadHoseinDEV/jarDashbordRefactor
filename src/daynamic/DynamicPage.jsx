@@ -34,6 +34,11 @@ const DepartmentPage = lazy(
 const AdminUnits = lazy(
   () => import('../features/dashboard/pages/admin/unit/AdminUnits')
 );
+
+const SystemPage = lazy(
+  () => import('../features/dashboard/pages/admin/system/systemPage')
+);
+
 // -------------------------------------------------------------------------
 
 // ProductsPage
@@ -180,6 +185,7 @@ const pagesMap = {
   [MENU_URL.ADMIN_SHIFT]: AdminShift,
   [MENU_URL.ADMIN_HOLDING]: HoldingPage,
   [MENU_URL.ADMIN_DEPARTMENT]: DepartmentPage,
+  [MENU_URL.ADMIN_SYSTEM]: SystemPage,
 
   [MENU_URL.PRODUCTION_REPORT]: ProductionReport,
 
@@ -200,6 +206,8 @@ const pagesMap = {
   [MENU_URL.BIWEEKLY_AMP]: BiWeeklyAmpReport,
   [MENU_URL.LINE_CHANGE_CHECKLIST]: LineChangeChecklist,
 
+  
+  
   [MENU_URL.DEFINITION_OF_PRODUCT]: CreateProducts,
   [MENU_URL.FINAL_NOTIFICATION_OF_LINE_CHANGE]: FinalLineChange,
   [MENU_URL.PERSONNEL_REPORTS]: PersonnelReports,

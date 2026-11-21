@@ -6,15 +6,20 @@ import { toast } from 'react-toastify';
 
 const BASE_API = `http://localhost:5273/api/DistributionPostControlRoomChecklist`;
 
-export const useGetControlChecklistReport = ({ search, page, pageSize }) => {
+export const useGetControlChecklistReport = ({
+  search,
+  page,
+  pageSize,
+  companyId,
+} = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReports = useQuery({
-    queryKey: ['checklist', token, search, page, pageSize],
+    queryKey: ['checklist', token, search, page, pageSize, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/all`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { search, page, pageSize },
+        params: { search, page, pageSize, companyId },
       });
       return res.data;
     },
@@ -22,14 +27,15 @@ export const useGetControlChecklistReport = ({ search, page, pageSize }) => {
   return getReports;
 };
 
-export const useGetAllControlChecklistReport = () => {
+export const useGetAllControlChecklistReport = ({ companyId } = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['checklist', token],
+    queryKey: ['checklist', token, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/simple`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { companyId },
       });
       return res.data;
     },
@@ -122,7 +128,7 @@ export const useCreateSignProducerControlChecklist = () => {
       queryClient.invalidateQueries({ queryKey: ['checklist', token] });
     },
     onError: (e) => {
-      toast.error(e.response.data.message || 'خطا در ثبت امضاء مجری');
+      toast.error(e?.response?.data?.errors[0] || 'خطا در ثبت امضاء مجری');
     },
   });
   return createSign;
@@ -146,7 +152,7 @@ export const useCreateSignSupervisorControlChecklist = () => {
       queryClient.invalidateQueries({ queryKey: ['checklist', token] });
     },
     onError: (e) => {
-      toast.error(e.response.data.message || 'خطا در ثبت امضاء سرپرست');
+      toast.error(e?.response?.data?.errors || 'خطا در ثبت امضاء سرپرست');
     },
   });
   return createSign;

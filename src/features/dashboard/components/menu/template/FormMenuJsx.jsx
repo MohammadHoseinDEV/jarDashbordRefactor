@@ -209,7 +209,7 @@ function FormMenuJsx({
             immediate
             value={selectedMenu ?? null}
             onChange={(value) =>
-              setValue('parentMenuId', value?.id || '', {
+              setValue('parentMenuId', value?.id || null, {
                 shouldValidate: true,
                 shouldDirty: true,
               })

@@ -11,6 +11,14 @@ import edit from '../../../../assets/images/edit.png';
 import form from '../../../../assets/images/form.png';
 import delet from '../../../../assets/images/delete.png';
 
+import {
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOptions,
+  ComboboxOption,
+} from '@headlessui/react';
+
 const CreateElectricityUps = lazy(
   () => import('../../components/electricityUPS/CreateElectricityUps')
 );
@@ -49,6 +57,9 @@ import { FaXmark } from 'react-icons/fa6';
 import { TbReport } from 'react-icons/tb';
 import { HiHashtag } from 'react-icons/hi';
 import { IoTimeOutline } from 'react-icons/io5';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
+import { useGetCompanies } from '../../../../hooks/company/companiApi';
+import useSelectOptions from '../../../dropDown/dropDownHook';
 
 function ElectricityUpsReport() {
   const { menus: userMenus } = useSelector((state) => state.auth);
@@ -63,6 +74,8 @@ function ElectricityUpsReport() {
   const [pageSize, setPageSize] = useState(10);
   const [filterStatus, setFilterStatus] = useState('all');
   const [openFilterMobile, setOpenFilterMobile] = useState(false);
+  const [searchCompany, setSearchCompany] = useState('');
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
 
   const shiftLabel = {
     2: 'روز کاری اول',
@@ -100,6 +113,14 @@ function ElectricityUpsReport() {
 
   const { data: profile } = useGetProfile();
 
+  const { data: permission } = useGetFullAccess();
+
+  const findCompany = permission?.companies?.[0]?.id;
+  const findDepartment = permission?.departments?.[0]?.id;
+  const hasDepartmentFilterAccess =
+    permission?.isGlobalAccess === false && permission?.departments?.length > 0;
+  console.log(hasDepartmentFilterAccess);
+
   const isSuperAdmin = profile?.data?.identityRoles?.some(
     (p) => p.roleId === 'cfa79204-d797-4241-8630-55fcc1b2f721'
   );
@@ -112,12 +133,31 @@ function ElectricityUpsReport() {
     (canEdit && isSupervisor) ||
     isSuperAdmin;
 
+  const { data: companyData } = useGetCompanies({
+    departmentId: findDepartment,
+    pageSize: 999999999,
+  });
+
+  const company = useSelectOptions(
+    companyData?.companies,
+    'انتخاب شرکت',
+    selectedCompanyId
+  );
+  const activeCompanyId = selectedCompanyId;
+
   const {
     data: electricity,
     isLoading,
     isError,
-  } = useGetElectricityReport({ search, page, pageSize });
-  const { data: electricityAll } = useGetElectricityReportAll();
+  } = useGetElectricityReport({
+    search,
+    page,
+    pageSize,
+    companyId: activeCompanyId,
+  });
+  const { data: electricityAll } = useGetElectricityReportAll({
+    companyId: activeCompanyId,
+  });
 
   const totalPages = electricity?.data?.totalPages ?? 1;
 
@@ -210,15 +250,64 @@ function ElectricityUpsReport() {
                   </p>
                 </button>
               </div>
-              <div className="flex items-center justify-end space-x-2 pt-2 pl-5 opacity-0">
-                <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
-                  <FaDownload />
-                  <span className="pr-2">خروجی اکسل</span>
-                </button>
-                <button className="flex items-center justify-center rounded-[10px] bg-[#f35714] px-4 py-2 text-[13px] text-white">
-                  <FaFilter />
-                  <span className="pr-2">فیلتر پیشرفته</span>
-                </button>
+              <div className="flex items-center justify-end gap-5">
+                {hasDepartmentFilterAccess && (
+                  <div className="rounded-xl border border-white/10 text-[16px] font-semibold text-[Vazirmatn]">
+                    <Combobox
+                      immediate
+                      value={company?.selected}
+                      onChange={(value) =>
+                        setSelectedCompanyId(value?.id ?? null)
+                      }
+                      onClose={() => company?.setSearch('')}
+                    >
+                      <div className="relative">
+                        <ComboboxInput
+                          displayValue={(c) => (c?.id ? c.name : '')}
+                          onChange={(e) => company?.setSearch(e.target.value)}
+                          placeholder="انتخاب  شرکت..."
+                          autoComplete="off"
+                          className="w-full rounded-xl bg-white/5 p-3 font-[Vazirmatn] text-white outline-none placeholder:text-white/50"
+                        />
+                        <ComboboxButton className="absolute inset-y-0 left-0 px-3 text-white/70">
+                          ▾
+                        </ComboboxButton>
+                      </div>
+                      <ComboboxOptions
+                        modal={false}
+                        anchor="bottom"
+                        className="no-scrollbar z-999 max-h-60 w-(--input-width) rounded-xl bg-black/95 p-1 shadow-lg ring-1 ring-white/10 [--anchor-gap:8px]"
+                      >
+                        {company?.filtered?.length === 0 ? (
+                          <div className="p-3 text-white/70">
+                            موردی پیدا نشد
+                          </div>
+                        ) : (
+                          company?.filtered?.map((c) => (
+                            <ComboboxOption
+                              key={c.id ?? 'empty'}
+                              value={c}
+                              className="cursor-pointer rounded-lg p-3 text-white data-focus:bg-white/10 data-selected:bg-white/15"
+                            >
+                              {c.name}
+                            </ComboboxOption>
+                          ))
+                        )}
+                      </ComboboxOptions>
+                    </Combobox>
+                  </div>
+                )}
+
+                <div className="hidden items-center justify-end space-x-2 pt-2 pl-5">
+                  <button className="flex items-center justify-center rounded-[10px] bg-[#0e1117] px-4 py-2 text-[13px] text-white/70">
+                    <FaDownload />
+                    <span className="pr-2">خروجی اکسل</span>
+                  </button>
+                  <button className="flex items-center justify-center rounded-[10px] bg-[#f35714] px-4 py-2 text-[13px] text-white">
+                    <FaFilter />
+                    <span className="pr-2">فیلتر پیشرفته</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -529,221 +618,244 @@ function ElectricityUpsReport() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData?.map((e, index) => (
-                    <tr key={e.id} className="text-center">
-                      <td className="size-5 border-b border-white/20">
-                        <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
-                          {index + 1}
-                        </p>
-                      </td>
-                      <td className="border-b border-white/20 font-[VazirLight] text-white">
-                        {e?.personnelName}
-                      </td>
-                      <td className="border-b border-white/20">
-                        {shiftLabel[e?.shiftFlags] || '__'}
-                      </td>
-                      <td className="border-b border-white/20">
-                        <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
-                          {e?.readingNumber}
-                        </p>
-                      </td>
-                      <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
-                        <p className="pl-2 text-[20px] text-[#863515]">
-                          <FiCalendar />
-                        </p>
-
-                        {toShamsi(e?.createdAt)}
-                      </td>
-                      <td className="border-b border-white/20">
-                        <div className="flex items-center justify-center space-x-2">
-                          <p className="text-[20px] text-[#863515]">
+                  {filteredData?.length > 0 ? (
+                    filteredData?.map((e, index) => (
+                      <tr key={e.id} className="text-center">
+                        <td className="size-5 border-b border-white/20">
+                          <p className="my-3 mr-5 rounded-[10px] border border-white/10 bg-[#131720] py-1 font-[AvenirLTProMedium] text-white/70">
+                            {index + 1}
+                          </p>
+                        </td>
+                        <td className="border-b border-white/20 font-[VazirLight] text-white">
+                          {e?.personnelName}
+                        </td>
+                        <td className="border-b border-white/20">
+                          {shiftLabel[e?.shiftFlags] || '__'}
+                        </td>
+                        <td className="border-b border-white/20">
+                          <p className="rounded-[10px] border border-[#32a3de]/40 bg-[#182228] font-[AvenirLTProBook] text-[#32a3de]">
+                            {e?.readingNumber}
+                          </p>
+                        </td>
+                        <td className="flex items-center justify-center border-b border-white/20 py-5 font-[AvenirLTProBook] text-white">
+                          <p className="pl-2 text-[20px] text-[#863515]">
                             <FiCalendar />
                           </p>
-                          <p className="font-[AvenirLTProBook] text-white">
-                            {toShamsi(e?.supervisorSignedAt)}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="border-b border-white/20">
-                        {(() => {
-                          if (e?.isSupervisorSigned === true) {
-                            return (
-                              <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
-                                تکمیل شده
-                              </p>
-                            );
-                          }
-                          if (e?.isExecutorSigned === false) {
-                            return (
-                              <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
-                                بدون امضاء
-                              </p>
-                            );
-                          }
-                          if (e?.isSupervisorSigned === false) {
-                            return (
-                              <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
-                                در انتظار
-                              </p>
-                            );
-                          }
-                        })()}
-                      </td>
-                      <td className="border-b border-white/20">
-                        <ReportActions
-                          report={e}
-                          canEdit={canEdit}
-                          canDelete={canDelete}
-                          openEdit={openEdit}
-                          askDelete={askDelete}
-                          setOpenFormReport={setOpenFormReport}
-                          setSelectedReport={setSelectedReport}
-                        />
+
+                          {toShamsi(e?.createdAt)}
+                        </td>
+                        <td className="border-b border-white/20">
+                          <div className="flex items-center justify-center space-x-2">
+                            <p className="text-[20px] text-[#863515]">
+                              <FiCalendar />
+                            </p>
+                            <p className="font-[AvenirLTProBook] text-white">
+                              {toShamsi(e?.supervisorSignedAt)}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="border-b border-white/20">
+                          {(() => {
+                            if (e?.isSupervisorSigned === true) {
+                              return (
+                                <p className="rounded-[10px] bg-[#1b4025]/50 py-1 text-[#3cbb30]">
+                                  تکمیل شده
+                                </p>
+                              );
+                            }
+                            if (e?.isExecutorSigned === false) {
+                              return (
+                                <p className="rounded-[10px] bg-[#f30437]/70 py-1 text-white">
+                                  بدون امضاء
+                                </p>
+                              );
+                            }
+                            if (e?.isSupervisorSigned === false) {
+                              return (
+                                <p className="rounded-[10px] bg-[#262627]/70 py-1 text-[#f9e2af]">
+                                  در انتظار
+                                </p>
+                              );
+                            }
+                          })()}
+                        </td>
+                        <td className="border-b border-white/20">
+                          <ReportActions
+                            report={e}
+                            canEdit={canEdit}
+                            canDelete={canDelete}
+                            openEdit={openEdit}
+                            askDelete={askDelete}
+                            setOpenFormReport={setOpenFormReport}
+                            setSelectedReport={setSelectedReport}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="border-b border-white/20 py-10 text-center text-white/60 md:text-sm 2xl:text-base"
+                      >
+                        {search
+                          ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                          : 'گزارشی ثبت نشده است'}
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               {/* Mobile design */}
               <div className="hidden w-full max-md:block">
-                {filteredData?.map((e, index) => (
-                  <div
-                    key={e.id}
-                    className="mx-2 my-2 rounded-[10px] border border-white/30"
-                  >
-                    <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
-                      <div className="flex items-center space-x-3">
-                        <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
-                          <FiUser />
-                        </p>
-                        <p className="flex flex-col space-y-0.5">
-                          <span className="font-bold">{e?.personnelName}</span>
-                          <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
-                            {e?.reportNumber}
-                          </span>
-                        </p>
+                {filteredData?.length > 0 ? (
+                  filteredData?.map((e, index) => (
+                    <div
+                      key={e.id}
+                      className="mx-2 my-2 rounded-[10px] border border-white/30"
+                    >
+                      <div className="mx-1 my-2 flex items-center justify-between border-b border-white/50 px-2 pb-2">
+                        <div className="flex items-center space-x-3">
+                          <p className="rounded-full bg-[#252d5a] p-4 text-white/50">
+                            <FiUser />
+                          </p>
+                          <p className="flex flex-col space-y-0.5">
+                            <span className="font-bold">
+                              {e?.personnelName}
+                            </span>
+                            <span className="font-[AvenirLTProMedium] text-[13px] text-white/60">
+                              {e?.reportNumber}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          {(() => {
+                            if (e?.isSupervisorSigned === true) {
+                              return (
+                                <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
+                                  تکمیل شده
+                                </p>
+                              );
+                            }
+                            if (e?.isShiftSupervisorSigned === false) {
+                              return (
+                                <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
+                                  بدون امضاء
+                                </p>
+                              );
+                            }
+                            if (e?.isSupervisorSigned === false) {
+                              return (
+                                <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
+                                  در انتظار
+                                </p>
+                              );
+                            }
+                          })()}
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        {(() => {
-                          if (e?.isSupervisorSigned === true) {
-                            return (
-                              <p className="rounded-[10px] bg-[#1b4025]/50 px-1 py-1 text-[#3cbb30]">
-                                تکمیل شده
-                              </p>
-                            );
-                          }
-                          if (e?.isShiftSupervisorSigned === false) {
-                            return (
-                              <p className="rounded-[10px] bg-[#f30437]/70 px-1 py-1 text-white">
-                                بدون امضاء
-                              </p>
-                            );
-                          }
-                          if (e?.isSupervisorSigned === false) {
-                            return (
-                              <p className="rounded-[10px] bg-[#262627]/70 px-1 py-1 text-[#f9e2af]">
-                                در انتظار
-                              </p>
-                            );
-                          }
-                        })()}
+                      <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
+                        <div className="flex items-center space-x-2">
+                          <p className="text-[22px] text-white/50">
+                            <FiCalendar />
+                          </p>
+                          <p className="flex flex-col">
+                            <span className="text-white/50">تاریخ ثبت</span>
+                            <span className="font-[AvenirLTProMedium]">
+                              {toShamsi(e?.createdAt)}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-[22px] text-white/50">
+                            <IoTimeOutline />
+                          </p>
+                          <p className="flex flex-col">
+                            <span className="text-white/50">شیفت</span>
+                            <span className="font-[AvenirLTProMedium]">
+                              {shiftLabel[e?.shiftFlags] || '__'}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-[22px] text-white/50">
+                            <FiClock />
+                          </p>
+                          <p className="flex flex-col">
+                            <span className="text-white/50">امضاء سرپرست</span>
+                            <span className="font-[AvenirLTProMedium]">
+                              {toShamsi(e?.supervisorSignedAt)}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-[22px] text-white/50">
+                            <HiHashtag />
+                          </p>
+                          <p className="flex flex-col">
+                            <span className="text-white/50">شماره گزارش</span>
+                            <span className="font-[AvenirLTProMedium]">
+                              {e?.readingNumber}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mx-2 grid grid-cols-7 gap-2">
+                        <button
+                          onClick={() => openEdit(e)}
+                          className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
+                            (canEdit &&
+                              profile?.data?.id === e?.createdBy &&
+                              e?.isSupervisorSigned === false) ||
+                            (canEdit && isSupervisor) ||
+                            isSuperAdmin
+                              ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                              : 'hidden bg-white/5 opacity-50'
+                          }`}
+                        >
+                          <img
+                            src={edit}
+                            alt="edit"
+                            width={20}
+                            className="mx-3 py-1"
+                          />
+                          <span className="pl-4">ویرایش</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOpenFormReport(true);
+                            setSelectedReport(e);
+                          }}
+                          className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
+                        >
+                          <img
+                            src={form}
+                            alt="form"
+                            width={20}
+                            className="mx-3 py-1"
+                          />
+                          مشاهده
+                        </button>
+                        <button
+                          onClick={() => askDelete(e)}
+                          className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
+                            canDelete
+                              ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
+                              : 'hidden bg-white/5 opacity-50'
+                          }`}
+                        >
+                          <img src={delet} alt="" width={20} />
+                        </button>
                       </div>
                     </div>
-                    <div className="mx-1 mb-2 grid grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <p className="text-[22px] text-white/50">
-                          <FiCalendar />
-                        </p>
-                        <p className="flex flex-col">
-                          <span className="text-white/50">تاریخ ثبت</span>
-                          <span className="font-[AvenirLTProMedium]">
-                            {toShamsi(e?.createdAt)}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <p className="text-[22px] text-white/50">
-                          <IoTimeOutline />
-                        </p>
-                        <p className="flex flex-col">
-                          <span className="text-white/50">شیفت</span>
-                          <span className="font-[AvenirLTProMedium]">
-                            {shiftLabel[e?.shiftFlags] || '__'}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <p className="text-[22px] text-white/50">
-                          <FiClock />
-                        </p>
-                        <p className="flex flex-col">
-                          <span className="text-white/50">امضاء سرپرست</span>
-                          <span className="font-[AvenirLTProMedium]">
-                            {toShamsi(e?.supervisorSignedAt)}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <p className="text-[22px] text-white/50">
-                          <HiHashtag />
-                        </p>
-                        <p className="flex flex-col">
-                          <span className="text-white/50">شماره گزارش</span>
-                          <span className="font-[AvenirLTProMedium]">
-                            {e?.readingNumber}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mx-2 grid grid-cols-7 gap-2">
-                      <button
-                        onClick={() => openEdit(e)}
-                        className={`col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-1 font-[Samim] ${
-                          (canEdit &&
-                            profile?.data?.id === e?.createdBy &&
-                            e?.isSupervisorSigned === false) ||
-                          (canEdit && isSupervisor) ||
-                          isSuperAdmin
-                            ? 'cursor-pointer bg-linear-to-bl from-green-500/10 to-green-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                            : 'hidden bg-white/5 opacity-50'
-                        }`}
-                      >
-                        <img
-                          src={edit}
-                          alt="edit"
-                          width={20}
-                          className="mx-3 py-1"
-                        />
-                        <span className="pl-4">ویرایش</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOpenFormReport(true);
-                          setSelectedReport(e);
-                        }}
-                        className="col-span-3 mb-2 flex cursor-pointer items-center justify-center rounded-[10px] bg-linear-to-bl from-white/30 to-white/70 p-1 px-7 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-106"
-                      >
-                        <img
-                          src={form}
-                          alt="form"
-                          width={20}
-                          className="mx-3 py-1"
-                        />
-                        مشاهده
-                      </button>
-                      <button
-                        onClick={() => askDelete(e)}
-                        className={`mb-2 flex cursor-pointer items-center justify-center rounded-[10px] p-2 font-[Samim] ${
-                          canDelete
-                            ? 'cursor-pointer bg-linear-to-bl from-red-500/10 to-red-800/50 transition-all delay-100 duration-150 ease-in-out hover:scale-106'
-                            : 'hidden bg-white/5 opacity-50'
-                        }`}
-                      >
-                        <img src={delet} alt="" width={20} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="mx-1 border-t border-b border-white/50 py-5 text-center text-white/50">
+                    {search
+                      ? `نتیجه‌ای برای «${search}» پیدا نشد`
+                      : 'گزارشی ثبت نشده است'}
+                  </p>
+                )}
               </div>
             </div>
           )}

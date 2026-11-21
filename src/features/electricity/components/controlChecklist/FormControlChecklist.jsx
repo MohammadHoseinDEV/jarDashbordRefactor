@@ -11,9 +11,17 @@ import {
 import { useSelector } from 'react-redux';
 import { useGetMenu } from '../../../../hooks/menu/menuApi';
 import { findMenu } from '../../../../utils/rbac';
-import { useGetPermissionSignature } from '../../../../hooks/user/userApi';
+import {
+  useGetImageSign,
+  useGetPermissionSignature,
+} from '../../../../hooks/user/userApi';
 import { useGetProfile } from '../../../../hooks/profile/profile';
 import { useGetSignatureId } from '../../../../hooks/Signature/Signature';
+import { useSignatureAccess } from '../../../../hooks/userSignatureAccess';
+import { MENU_URL } from '../../../../permission/menuKeys';
+import { useGetCompanyLogo } from '../../../../hooks/company/companiApi';
+import { LuPencil } from 'react-icons/lu';
+import { IoCloseSharp } from 'react-icons/io5';
 
 function FormControlChecklist({
   openForm,
@@ -21,8 +29,6 @@ function FormControlChecklist({
   selectedControlChecklist,
 }) {
   const { userInfo } = useSelector((state) => state.auth);
-  const [selectedSignProducer, setSelectedSignProducer] = useState(null);
-  const [selectedSignSupervisor, setSelectedSignSupervisor] = useState(null);
   const [openCode, setOpenCode] = useState(false);
   const [password, setPassword] = useState('');
   const [signatureType, setSignatureType] = useState(null);
@@ -42,71 +48,38 @@ function FormControlChecklist({
     setOpenForm(false);
   };
 
-  // ---------------------------------------------------------------------
-  // Sign
-  // دسترسی امضاء
-  const { data: menu } = useGetMenu();
-  const controlChecklistMenu = findMenu(
-    menu?.menus ?? [],
-    'controlChecklist-report'
+  // --------------------------------------------------------
+  // Logo
+  const { data: companyLogo } = useGetCompanyLogo(
+    selectedControlChecklist?.companyId,
+    openForm && !!selectedControlChecklist?.companyId
   );
-  const menuId = controlChecklistMenu?.id;
 
-  const { data: permission } = useGetPermissionSignature(userInfo?.userId);
-  const canSign = permission?.data?.some(
-    (p) => p.menuId === menuId && p.canSignature === true
-  );
-  // ---------------------------------------------------------------------
-  // دسترسی های پیشرفته
-  const { data: profile } = useGetProfile();
-  // isShiftSupervisorSigned
-  const isProducer = selectedControlChecklist?.createdBy === profile?.data?.id;
-  const canSignProducer = canSign && isProducer;
+  const logoSrc =
+    companyLogo?.success && companyLogo?.imageBase64
+      ? `data:${companyLogo.contentType};base64,${companyLogo.imageBase64}`
+      : logo;
+  // --------------------------------------------------------
 
-  // isSupervisorSigned
-  const isSupervisor = profile?.data?.companyRoles?.some(
-    (p) => p.roleId === '5e6bcab8-bb18-482f-9805-477ac64fa209'
-  );
-  const canSignSupervisor = canSign && isSupervisor;
-  // ---------------------------------------------------------------------
-  // گرفتن عکس امضاء کاربران برای نمایش با ID کاربران
-  const { data: signProducer } = useGetSignatureId(
+  const { canSign } = useSignatureAccess(MENU_URL.CONTROL_CHECKLIST_REPORT);
+  const canSignExecutor = canSign('executor');
+  const canSignSuperVisor = canSign('supervisor');
+
+  const { data: signExecutor } = useGetImageSign(
     selectedControlChecklist?.executorSignedByUserId
   );
-  const { data: signSupervisor } = useGetSignatureId(
+  const { data: signSupervisor } = useGetImageSign(
     selectedControlChecklist?.supervisorSignedByUserId
   );
-  // ---------------------------------------------------------------------
-  useEffect(() => {
-    if (
-      selectedControlChecklist?.isExecutorSigned === true &&
-      signProducer?.data?.signatureImageBase64
-    ) {
-      setSelectedSignProducer(signProducer?.data?.signatureImageBase64);
-    } else {
-      setSelectedSignProducer(null);
-    }
 
-    if (
-      selectedControlChecklist?.isSupervisorSigned === true &&
-      signSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedSignSupervisor(signSupervisor?.data?.signatureImageBase64);
-    } else {
-      setSelectedSignSupervisor(null);
-    }
-  }, [
-    signProducer,
-    signSupervisor,
-    selectedControlChecklist?.isShiftSupervisorSigned,
-    selectedControlChecklist?.isSupervisorSigned,
-  ]);
+  const executorSignature = signExecutor?.data?.signatureImageBase64;
+  const supervisorSignature = signSupervisor?.data?.signatureImageBase64;
 
   const createSignProducer = useCreateSignProducerControlChecklist();
   const createSignSupervisor = useCreateSignSupervisorControlChecklist();
 
   const handleSubmitSign = () => {
-    if (signatureType === 'producer') {
+    if (signatureType === 'executor') {
       createSignProducer.mutate(
         {
           id: selectedControlChecklist?.id,
@@ -148,9 +121,9 @@ function FormControlChecklist({
         onClick={closeHandler}
       />
       <div
-        className={`relative transform rounded-[15px] bg-white p-6 text-white shadow-2xl transition-all duration-300 ${
+        className={`relative transform rounded-[15px] bg-white p-2 text-white shadow-2xl transition-all duration-300 print:shadow-none ${
           openForm
-            ? 'translate-y-0 scale-110 opacity-100 max-2xl:scale-70 max-md:scale-60 print:scale-86 print:shadow-none'
+            ? 'translate-y-0 scale-110 opacity-100 max-2xl:scale-70 max-md:scale-60 print:scale-120 '
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >
@@ -161,7 +134,11 @@ function FormControlChecklist({
           {/* Header */}
           <div className="grid grid-cols-4">
             <div className="flex items-center justify-center border">
-              <img src={logo} alt="logo" width={90} />
+              <img
+                src={logoSrc}
+                alt="logo"
+                className="h-12 w-22 object-contain"
+              />
             </div>
             <div className="col-span-2 flex items-center justify-center border-t border-b border-l">
               <h1 className="font-[SamimBold] text-[14px]">
@@ -247,13 +224,13 @@ function FormControlChecklist({
             </table>
           </div>
           <div>
-            <div className="h-20 px-1">
+            <div className="h-10 px-1">
               <p className="text-[12px] font-bold">توضیحات :</p>
               <p className="font-[VazirLight] text-[11px]">
                 {selectedControlChecklist?.description}
               </p>
             </div>
-            <div className="flex justify-around pt-2">
+            {/* <div className="flex justify-around pt-2">
               <div className="flex items-center space-x-1">
                 <p className="text-[12px]">امضاء مجری :</p>
                 <p>
@@ -301,13 +278,74 @@ function FormControlChecklist({
                   )}
                 </p>
               </div>
+            </div> */}
+            <div className="mt-5 grid grid-cols-2 justify-center gap-5 text-center">
+              <div
+                className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 print:border-none ${selectedControlChecklist?.isExecutorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+              >
+                <p className="space-x-1 text-xs">
+                  <span>نام و امضاء تهیه کننده :</span>
+                  <span className="font-[Vazirmatn] font-semibold">
+                    {selectedControlChecklist?.executorSignedByFullName}
+                  </span>
+                </p>
+                <p>
+                  {executorSignature ? (
+                    <img
+                      src={`data:image/png;base64,${executorSignature}`}
+                      alt="signature"
+                      className="absolute right-1/3 bottom-0 h-20 object-contain"
+                    />
+                  ) : canSignExecutor &&
+                    !selectedControlChecklist?.isExecutorSigned ? (
+                    <button
+                      onClick={() => handleOpenSignatureModal('executor')}
+                      className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
+                    >
+                      <span>ثبت امضاء</span>
+                      <LuPencil />
+                    </button>
+                  ) : null}
+                </p>
+              </div>
+              <div
+                className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 print:border-none ${selectedControlChecklist?.isSupervisorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+              >
+                <p className="text-xs">
+                  <span>نام و امضاء تایید کننده :</span>
+                  <span className="font-[Vazirmatn] font-semibold">
+                    {selectedControlChecklist?.supervisorSignedByFullName}
+                  </span>
+                </p>
+                <p>
+                  {supervisorSignature ? (
+                    <img
+                      src={`data:image/png;base64,${supervisorSignature}`}
+                      alt="signature"
+                      className="absolute bottom-0 left-1/3 h-20 object-contain"
+                    />
+                  ) : canSignSuperVisor &&
+                    !selectedControlChecklist?.isSupervisorSigned ? (
+                    <button
+                      onClick={() => handleOpenSignatureModal('supervisor')}
+                      className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
+                    >
+                      <span>ثبت امضاء</span>
+                      <LuPencil />
+                    </button>
+                  ) : null}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {/* Code */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
-          openCode ? 'opacity-100' : 'pointer-events-none opacity-0'
+        className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
+          openCode
+            ? 'pointer-events-auto opacity-100 '
+            : 'pointer-events-none opacity-0'
         }`}
       >
         <div
@@ -317,22 +355,24 @@ function FormControlChecklist({
           }}
         />
         <div
-          className={`relative transform rounded-[15px] bg-linear-to-br from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 ${
+          className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
             openCode
-              ? 'translate-y-0 scale-100 opacity-100'
+              ? ' translate-y-0 scale-100 opacity-100'
               : '-translate-y-10 scale-0 opacity-0'
           }`}
         >
           <div className="flex items-center justify-between pb-5">
             <h1>کد امضاء</h1>
-            <span
+            <p
               onClick={() => {
                 setOpenCode(false);
               }}
-              className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+              className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
             >
-              <img src={close} alt="close" width={20} />
-            </span>
+              <span>
+                <IoCloseSharp />
+              </span>
+            </p>
           </div>
           <input
             type="text"
@@ -344,12 +384,14 @@ function FormControlChecklist({
             }}
             className="m-2 w-full rounded-xl bg-white/10 p-3 font-[Samim] text-[18px] text-white outline-none"
           />
-          <button
-            onClick={handleSubmitSign}
-            className="float-left mt-2 cursor-pointer rounded-[10px] bg-green-500 p-2 transition-all delay-75 duration-100 hover:bg-green-700"
-          >
-            تایید
-          </button>
+          <div className="flex items-center justify-end">
+            <button
+              onClick={handleSubmitSign}
+              className={`cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50 ${password === '' ? 'cursor-not-allowed opacity-50' : ''}`}
+            >
+              تایید
+            </button>
+          </div>
         </div>
       </div>
     </div>

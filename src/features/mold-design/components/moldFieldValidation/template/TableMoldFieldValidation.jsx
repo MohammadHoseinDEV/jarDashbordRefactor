@@ -14,7 +14,6 @@ function TableMoldFieldValidation({
 }) {
   return (
     <div>
-      {' '}
       <table className="w-full border-separate border-spacing-y-0 max-md:hidden">
         <thead className="bg-[#0b0c12] text-white/70">
           <tr className="5xl:text-[25px] max-2xl:text-[12px]">

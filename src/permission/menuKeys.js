@@ -11,6 +11,7 @@ export const MENU_URL = {
   ADMIN_DEPARTMENT: 'admin-department',
   ADMIN_COMPANY: 'admin-companies',
   ADMIN_UNITS: 'admin-units',
+  ADMIN_SYSTEM: 'admin-systems',
 
   // Work Reports
   PRODUCTION_REPORT: 'production-report',

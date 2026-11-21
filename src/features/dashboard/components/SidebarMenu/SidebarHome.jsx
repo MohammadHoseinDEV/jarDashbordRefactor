@@ -59,7 +59,7 @@ function MenuItem({
           <img
             src={MENU_ICON_MAP[item?.icon]}
             alt={item?.icon}
-            className="5xl:size-13 flex h-8 w-8 object-contain"
+            className="4xl:size-13 flex h-8 w-8 object-contain"
           />
         )
       ) : (
@@ -67,7 +67,7 @@ function MenuItem({
       )}
 
       {isOpen && (
-        <p className="5xl:text-[20px] pr-2 text-[15px] opacity-100 transition-all delay-150 duration-200 max-xl:text-[12px] max-sm:text-[15px]">
+        <p className="4xl:text-[20px] pr-2 text-[15px] opacity-100 transition-all delay-150 duration-200 md:text-xs xl:text-sm">
           {item?.title}
         </p>
       )}

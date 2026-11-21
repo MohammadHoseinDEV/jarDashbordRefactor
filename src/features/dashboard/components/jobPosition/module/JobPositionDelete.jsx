@@ -1,0 +1,78 @@
+import React from 'react';
+import { IoCloseSharp } from 'react-icons/io5';
+import { useDeleteJopPosition } from '../../../../../hooks/jobPosition/jobPosition';
+
+function JobPositionDelete({ isModalOpen, selectedJob, onClose }) {
+  const closeHandler = () => {
+    onClose();
+  };
+
+  const deletejob = useDeleteJopPosition();
+
+  const deleteHandler = () => {
+    deletejob.mutate(selectedJob?.id, {
+      onSuccess: () => {
+        closeHandler();
+      },
+    });
+  };
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+        isModalOpen
+          ? 'pointer-events-auto opacity-100 '
+          : 'pointer-events-none opacity-0'
+      }`}
+    >
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        onClick={closeHandler}
+      />
+      <div
+        className={`relative w-full transform rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] p-6 text-white shadow-2xl transition-all duration-300 md:w-fit ${
+          isModalOpen
+            ? 'translate-y-0 scale-100 opacity-100'
+            : '-translate-y-10 scale-0 opacity-0'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <h1 className="4xl:text-3xl pr-1.5 font-[Vazirmatn] text-lg font-semibold md:text-xl">
+              حذف جایگاه شغلی
+            </h1>
+          </div>
+          <p
+            onClick={closeHandler}
+            className="4xl:text-3xl flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
+          >
+            <span>
+              <IoCloseSharp />
+            </span>
+          </p>
+        </div>
+        <div className="4xl:text-3xl text-basm flex flex-wrap items-center justify-start space-x-1 py-2 font-[Vazirmatn] text-sm md:text-lg lg:text-xl">
+          <p className="text-white/70">آیا از حذف جایگاه شغلی </p>
+          <p className="border-b">{selectedJob?.title}</p>
+          <p className="text-white/70">اطمینان دارید؟</p>
+        </div>
+        <div className="flex items-end justify-end space-x-2 py-3">
+          <button
+            onClick={closeHandler}
+            className="4xl:text-xl cursor-pointer rounded-xl bg-white/10 px-5 py-2 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
+          <button
+            onClick={deleteHandler}
+            className="4xl:text-xl cursor-pointer rounded-xl bg-red-700/95 px-5 py-2 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            حذف
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default JobPositionDelete;

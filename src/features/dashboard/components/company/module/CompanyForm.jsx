@@ -25,6 +25,7 @@ const initialState = {
   isActive: true,
 };
 
+
 function CompanyForm({
   isModalOpen,
   setIsModalOpen,

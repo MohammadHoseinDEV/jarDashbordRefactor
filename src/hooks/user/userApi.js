@@ -6,50 +6,49 @@ import API_HOST from '../../../API/api';
 
 const BASE_API = `${API_HOST}:5257/api/User`;
 
-const useCreateUser = () => {
+export const useGetUser = ({ search, page, pageSize } = {}) => {
+  const { token } = useSelector((state) => state.auth);
+
+  return useQuery({
+    queryKey: ['user', search, page, pageSize],
+    queryFn: async () => {
+      const res = await axios.get(BASE_API, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { search, page, pageSize },
+      });
+      return res.data;
+    },
+  });
+};
+
+
+export const useCreateUser = () => {
   const { token } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
 
-  const createUser = useMutation({
-    mutationFn: async (form) => {
-      const res = await axios.post(`${BASE_API}`, form, {
+  return useMutation({
+    mutationFn: async (data) => {
+      const res = await axios.post(BASE_API, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     },
     onSuccess: () => {
       toast.success('کاربر با موفقیت ایجاد شد');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-    onError: (error) => {
-      toast.error(error.response.data.message || 'خطا در ایجاد کاربر جدید');
-    },
-  });
-  return createUser;
-};
-
-const getUser = ({ page, pageSize, search, unitName } = {}) => {
-  const { token } = useSelector((state) => state.auth);
-
-  const getUsers = useQuery({
-    queryKey: ['users', token, page, pageSize, search, unitName],
-    queryFn: async () => {
-      const res = await axios.get(`${BASE_API}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { page, pageSize, search, unitName },
-      });
-      return res.data;
+    onError: (e) => {
+      toast.error(e?.response?.data?.message || 'خطا در ایجاد کاربر');
     },
   });
-  return getUsers;
 };
 
-const useEditUser = () => {
+export const useUpdateUser = () => {
   const { token } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
 
-  const editUser = useMutation({
-    mutationFn: async (data, id) => {
+  return useMutation({
+    mutationFn: async ({ id, data }) => {
       const res = await axios.put(`${BASE_API}/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -57,20 +56,19 @@ const useEditUser = () => {
     },
     onSuccess: () => {
       toast.success('کاربر با موفقیت ویرایش شد');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-    onError: (error) => {
-      toast.error(error.response.data.message || 'خطا در ویرایش کاربر');
+    onError: (e) => {
+      toast.error(e?.response?.data?.message || 'خطا در ویرایش کاربر');
     },
   });
-  return editUser;
 };
 
-const useDeleteUser = () => {
+export const useDeleteUser = () => {
   const { token } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
 
-  const deleteUser = useMutation({
+  return useMutation({
     mutationFn: async (id) => {
       const res = await axios.delete(`${BASE_API}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -79,57 +77,13 @@ const useDeleteUser = () => {
     },
     onSuccess: () => {
       toast.success('کاربر با موفقیت حذف شد');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || 'خطا در حذف کاربر');
-    },
-  });
-  return deleteUser;
-};
-
-const useUpdateUser = () => {
-  const { token } = useSelector((state) => state.auth);
-  const queryClient = useQueryClient();
-
-  const putUser = useMutation({
-    mutationFn: async ({ id, data }) => {
-      const res = await axios.put(`${BASE_API}/${id}`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success('عملیات با موفقیت ایجاد شد');
-      queryClient.invalidateQueries({ queryKey: ['users', token] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: (e) => {
-      toast.error(e?.response?.data?.message || 'خطا در انجام عملیات');
+      toast.error(e?.response?.data?.message || 'خطا در حذف کاربر');
     },
   });
-  return putUser;
 };
-
-export const useGetScheduleShift = ({ UserId, FromDate, ToDate }) => {
-  const { token } = useSelector((state) => state.auth);
-
-  const getShift = useQuery({
-    queryKey: ['users', token, UserId, FromDate, ToDate],
-    queryFn: async () => {
-      const res = await axios.get(`${API_HOST}:5257/api/Shift/schedule`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { UserId, FromDate, ToDate },
-      });
-      return res.data;
-    },
-    enabled: !!UserId && !!FromDate && !!ToDate && !!token,
-  });
-  return getShift;
-};
-
-// ------------------------------------------------------------------
-
-// امضاء
 
 export const usePermissionSignature = () => {
   const { token } = useSelector((state) => state.auth);
@@ -137,19 +91,15 @@ export const usePermissionSignature = () => {
 
   return useMutation({
     mutationFn: async (form) => {
-      const res = await axios.post(
-        `${API_HOST}:5257/api/User/permission-sign`,
-        form,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.post(`${BASE_API}/permission-sign`, form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return res.data;
     },
-
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       toast.success('عملیات با موفقیت انجام شد');
-      queryClient.invalidateQueries({
-        queryKey: ['permission-sign-menus', variables.userId, token],
-      });
+      queryClient.invalidateQueries({ queryKey: ['permission-sign'] });
+      queryClient.invalidateQueries({ queryKey: ['permission-sign-menus'] });
     },
   });
 };
@@ -160,19 +110,15 @@ export const useUpdatePermissionSignature = () => {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await axios.put(
-        `${API_HOST}:5257/api/User/permission-sign`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.put(`${BASE_API}/permission-sign`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return res.data;
     },
-
-    onSuccess: (data, variables) => {
-      toast.success('عدم دسترسی به منو با موفقیت انجام شد');
-      queryClient.invalidateQueries({
-        queryKey: ['permission-sign-menus', variables.userId, token],
-      });
+    onSuccess: () => {
+      toast.success('عملیات با موفقیت انجام شد');
+      queryClient.invalidateQueries({ queryKey: ['permission-sign'] });
+      queryClient.invalidateQueries({ queryKey: ['permission-sign-menus'] });
     },
   });
 };
@@ -181,12 +127,11 @@ export const useGetPermissionSignature = (id) => {
   const { token } = useSelector((state) => state.auth);
 
   return useQuery({
-    queryKey: ['permission-sign', id, token],
+    queryKey: ['permission-sign', id],
     queryFn: async () => {
-      const res = await axios.get(
-        `${API_HOST}:5257/api/User/${id}/permission-signs`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get(`${BASE_API}/${id}/permission-signs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return res.data;
     },
     enabled: !!id && !!token,
@@ -197,16 +142,29 @@ export const getMenuSignatureName = (id) => {
   const { token } = useSelector((state) => state.auth);
 
   return useQuery({
-    queryKey: ['permission-sign-menus', id, token],
+    queryKey: ['permission-sign-menus', id],
     queryFn: async () => {
-      const res = await axios.get(
-        `${API_HOST}:5257/api/User/${id}/permission-sign-menus`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get(`${BASE_API}/${id}/permission-sign-menus`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return res.data;
     },
     enabled: !!id && !!token,
   });
 };
 
-export { useCreateUser, getUser, useEditUser, useDeleteUser, useUpdateUser };
+export const useGetImageSign = (id) => {
+  const { token } = useSelector((state) => state.auth);
+
+  return useQuery({
+    queryKey: ['sign', token, id],
+    queryFn: async () => {
+      const res = await axios.get(
+        `http://localhost:5257/api/Signature/user/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return res.data;
+    },
+    enabled: !!id,
+  });
+};

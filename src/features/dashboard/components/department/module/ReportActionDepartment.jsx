@@ -22,6 +22,7 @@ import deleteIcon from '../../../../../assets/images/delete.png';
 import form from '../../../../../assets/images/form.png';
 import { useGetProfile } from '../../../../../hooks/profile/profile';
 import { FaUnlock } from 'react-icons/fa';
+import { FcAddImage } from 'react-icons/fc';
 
 function ReportActionDepartment({
   report,
@@ -34,6 +35,7 @@ function ReportActionDepartment({
   profile,
   canView,
   openView,
+  openLogo,
 }) {
   if (!report) return null;
 
@@ -129,6 +131,27 @@ function ReportActionDepartment({
                     <img src={deleteIcon} alt="delete" width={20} />
                   </button>
                   <p className="my-auto flex text-white">حذف</p>
+                </div>
+              )}
+
+              {canEdit && (
+                <div
+                  {...getItemProps({
+                    onClick: (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openLogo(report);
+                      setIsOpen(false);
+                    },
+                  })}
+                  className="flex w-full space-x-2 rounded-[5px] py-1 transition-all delay-75 duration-100 hover:bg-white/20"
+                >
+                  <button
+                    className={`cursor-pointer rounded-[10px] p-2 font-[Samim] text-2xl text-red-500 max-xl:p-1 ${'cursor-pointer transition-all delay-100 duration-150 ease-in-out hover:scale-106 '}`}
+                  >
+                    <FcAddImage />
+                  </button>
+                  <p className="my-auto flex text-white">لوگو</p>
                 </div>
               )}
             </div>

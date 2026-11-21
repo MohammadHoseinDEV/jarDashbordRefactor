@@ -29,7 +29,7 @@ function EditLineChangeCheckListJsx({
         </h1>
         <p
           onClick={closeHandler}
-          className="5xl:size-12 5xl:text-[35px] flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#343457] text-[20px] transition-all delay-75 duration-100 hover:scale-110"
+          className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
         >
           <span>
             <IoCloseSharp />
@@ -91,12 +91,12 @@ function EditLineChangeCheckListJsx({
               className="input-text"
             />
           </label>
-          <label htmlFor="description">
+          <label htmlFor="shiftName">
             شیفت
             <input
               type="text"
               readOnly
-              value={form.description || ''}
+              value={form.shiftName || ''}
               className="input-text"
             />
           </label>
@@ -273,7 +273,14 @@ function EditLineChangeCheckListJsx({
           ))}
         </div>
       </form>
-      <div className="my-2 text-left">
+      <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={closeHandler}
+          className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+        >
+          انصراف
+        </button>
         <button
           type="submit"
           form="lineChangeCheckLists"

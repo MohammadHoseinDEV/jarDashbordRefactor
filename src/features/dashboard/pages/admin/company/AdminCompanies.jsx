@@ -11,6 +11,7 @@ import CompanyMobilePage from '../../../components/company/template/CompanyMobil
 import { useGetDepartment } from '../../../../../hooks/depratment/department';
 import CompanyForm from '../../../components/company/module/CompanyForm';
 import CompanyDelete from '../../../components/company/module/CompanyDelete';
+import CompanyLogo from '../../../components/company/module/CompanyLogo';
 
 function AdminCompanies() {
   const { token, menus: userMenus } = useSelector((state) => state.auth);
@@ -24,9 +25,10 @@ function AdminCompanies() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [openFilterMobile, setOpenFilterMobile] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [isLogo, setIsLogo] = useState(false);
 
   const { canCreate, canEdit, canDelete, guardCreate, guardEdit, guardDelete } =
-    usePermission(MENU_URL.ADMIN_COMPANY, 'کمپانی');
+    usePermission(MENU_URL.ADMIN_COMPANY, 'company');
 
   const openCreate = guardCreate(() => {
     setIsModalOpen(true);
@@ -41,6 +43,11 @@ function AdminCompanies() {
     setSelectedCompany(com);
     setIsDeleteModalOpen(true);
   });
+
+  const openLogo = (com) => {
+    setIsLogo(true);
+    setSelectedCompany(com);
+  };
 
   const {
     data: company,
@@ -99,6 +106,7 @@ function AdminCompanies() {
                 openEdit={openEdit}
                 canDelete={canDelete}
                 openDelete={openDelete}
+                openLogo={openLogo}
                 search={search}
               />
             </div>
@@ -124,6 +132,12 @@ function AdminCompanies() {
       <CompanyDelete
         isDeleteModalOpen={isDeleteModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
+        selectedCompany={selectedCompany}
+        setSelectedCompany={setSelectedCompany}
+      />
+      <CompanyLogo
+        isLogo={isLogo}
+        setIsLogo={setIsLogo}
         selectedCompany={selectedCompany}
         setSelectedCompany={setSelectedCompany}
       />

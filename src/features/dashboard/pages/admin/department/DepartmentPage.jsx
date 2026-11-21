@@ -9,6 +9,7 @@ import FormDepartment from '../../../components/department/module/FormDepartment
 import DeleteDepartment from '../../../components/department/module/DeleteDepartment';
 import { HashLoader } from 'react-spinners';
 import TableDepartmentPage from '../../../components/department/template/TableDepartmentPage';
+import DepartmentLogo from '../../../components/department/module/DepartmentLogo';
 
 function DepartmentPage() {
   const { token, menus: userMenus } = useSelector((state) => state.auth);
@@ -22,6 +23,7 @@ function DepartmentPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [openFilterMobile, setOpenFilterMobile] = useState(false);
   const [selectedDepartment, setselectedDepartment] = useState(null);
+  const [isLogo, setIsLogo] = useState(false);
 
   const { canCreate, canEdit, canDelete, guardCreate, guardEdit, guardDelete } =
     usePermission(MENU_URL.ADMIN_DEPARTMENT, 'دپارتمان');
@@ -39,6 +41,11 @@ function DepartmentPage() {
     setselectedDepartment(role);
     setIsDeleteModalOpen(true);
   });
+
+  const openLogo = (role) => {
+    setIsLogo(true);
+    setselectedDepartment(role);
+  };
 
   const {
     data: dep,
@@ -90,6 +97,7 @@ function DepartmentPage() {
                 openEdit={openEdit}
                 canDelete={canDelete}
                 openDelete={openDelete}
+                openLogo={openLogo}
                 search={search}
               />
             </div>
@@ -106,6 +114,13 @@ function DepartmentPage() {
       <DeleteDepartment
         isDeleteModalOpen={isDeleteModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
+        selectedDepartment={selectedDepartment}
+        setselectedDepartment={setselectedDepartment}
+      />
+
+      <DepartmentLogo
+        isLogo={isLogo}
+        setIsLogo={setIsLogo}
         selectedDepartment={selectedDepartment}
         setselectedDepartment={setselectedDepartment}
       />

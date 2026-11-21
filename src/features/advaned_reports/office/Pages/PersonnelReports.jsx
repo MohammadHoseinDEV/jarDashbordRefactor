@@ -8,7 +8,7 @@ import shift from '../../../../assets/images/shift.png';
 import graduation from '../../../../assets/images/graduation.png';
 import organization from '../../../../assets/images/organization.png';
 
-import { getUser } from '../../../../hooks/user/userApi';
+import { useGetUser } from '../../../../hooks/user/userApi';
 
 function PersonnelReports() {
   const [mobile, setMobile] = useState(false);
@@ -33,7 +33,7 @@ function PersonnelReports() {
     data: user,
     isLoading,
     isError,
-  } = getUser({ page, pageSize, search });
+  } = useGetUser({ page, pageSize, search });
 
   const maleCount = user?.data.filter((u) => u.gender === 0).length;
   const femaleCount = user?.data.filter((u) => u.gender === 1).length;

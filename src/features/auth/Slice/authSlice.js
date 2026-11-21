@@ -124,7 +124,6 @@ export const fetchUserPermissions = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      // If token is invalid/expired, you may want to force logout in UI
       return rejectWithValue(
         error?.response?.data?.message || 'خطا در دریافت دسترسی‌ها'
       );

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import close from '../../../../assets/images/close.png';
-
 import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import { useUpdateWeeklyAmp } from '../../Api/dailyAmpWeekly/WeeklyAmp';
-
+import { IoCloseSharp } from 'react-icons/io5';
 
 const deviceList = [
   { id: 1, name: 'توزیع کننده خط1' },
@@ -179,8 +177,8 @@ const deviceList = [
   { id: 171, name: 'الکترو گیربکس کوتینگ سرد خط 1' },
   { id: 172, name: 'الکترو گیربکس کوتینگ سرد خط 2' },
   { id: 173, name: 'الکترو گیربکس کوتینگ سرد خط 3' },
-  { id: 137, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هاوس سمت چپ ( (L' },
-  { id: 138, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هس سمت راست ( (R' },
+  { id: 174, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هاوس سمت چپ ( (L' },
+  { id: 175, name: 'الکترو موتورفن 7.5 کیلو وات زیر داگ هس سمت راست ( (R' },
 ];
 
 function EditWeeklyAmp({
@@ -272,7 +270,7 @@ function EditWeeklyAmp({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex h-screen items-center justify-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
         openEditModal
           ? 'pointer-events-auto opacity-100 '
           : 'pointer-events-none opacity-0'
@@ -283,9 +281,9 @@ function EditWeeklyAmp({
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] w-[1000px] max-w-[95vw] transform flex-col rounded-[15px] bg-linear-to-tl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-md:h-160 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openEditModal
-            ? 'translate-y-0 scale-100 opacity-100'
+            ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >
@@ -293,17 +291,14 @@ function EditWeeklyAmp({
           <h2 className="font-[SamimBold] text-[20px] max-md:text-[15px]">
             ویرایش گزارش هفتگی آمپر گیری
           </h2>
-          <button
+          <p
             onClick={closeHandler}
-            className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+            className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
           >
-            <img
-              src={close}
-              alt="close"
-              width={20}
-              className="transition-all delay-100 duration-100 ease-in-out hover:scale-110"
-            />
-          </button>
+            <span>
+              <IoCloseSharp />
+            </span>
+          </p>
         </div>
         <form
           id="weeklyAmpForms"
@@ -541,13 +536,20 @@ function EditWeeklyAmp({
             ))}
           </div>
         </form>
-        <div>
+        <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
           <button
             type="submit"
             form="weeklyAmpForms"
-            className="w-full cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-[1.01]"
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            ثبت گزارش
+            ویرایش گزارش
           </button>
         </div>
       </div>

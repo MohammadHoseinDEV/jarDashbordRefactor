@@ -44,7 +44,7 @@ export const useCreateLineChangeCheckList = () => {
       queryClient.invalidateQueries({ queryKey: ['checkList'] });
     },
     onError: (e) => {
-      toast.error(e.response?.data?.message || 'خطا در ثبت فرم');
+      toast.error(e?.response?.data?.message || 'خطا در ثبت فرم');
     },
   });
   return createReport;

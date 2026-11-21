@@ -6,14 +6,19 @@ import { toast } from 'react-toastify';
 
 const BASE_API = `http://localhost:5273/api/BiweeklyAmperageReport`;
 
-export const useGetBiweeklyAmp = ({ search, page, pageSize }) => {
+export const useGetBiweeklyAmp = ({
+  search,
+  page,
+  pageSize,
+  companyId,
+} = {}) => {
   const { token } = useSelector((state) => state.auth);
   const getReport = useQuery({
-    queryKey: ['biweekly', token, search, page, pageSize],
+    queryKey: ['biweekly', token, search, page, pageSize, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/all`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { search, page, pageSize },
+        params: { search, page, pageSize, companyId },
       });
       return res.data;
     },
@@ -21,14 +26,15 @@ export const useGetBiweeklyAmp = ({ search, page, pageSize }) => {
   return getReport;
 };
 
-export const useGetAllBiweeklyAmp = () => {
+export const useGetAllBiweeklyAmp = ({ companyId } = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['biweekly', token],
+    queryKey: ['biweekly', token, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/simple`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { companyId },
       });
       return res.data;
     },

@@ -5,17 +5,22 @@ import { fetchUserPermissions } from '../../../auth/Slice/authSlice';
 
 export default function PrivateRoute() {
   const dispatch = useDispatch();
-  const { token, permissions, menus, loading } = useSelector((s) => s.auth);
+  const { token, permissions, loading, menus } = useSelector((s) => s.auth);
 
   useEffect(() => {
-    if (token && !loading && (!permissions || !menus?.length)) {
+    if (token && !loading && !permissions) {
       dispatch(fetchUserPermissions(token));
     }
-  }, [token, permissions, menus, loading, dispatch]);
+  }, [token, permissions, loading, dispatch]);
 
   if (!token) return <Navigate to="/login" replace />;
 
-  if (loading) return <div className="p-6 text-white">در حال بارگذاری...</div>;
+  if (loading || !permissions)
+    return <div className="p-6 text-white">در حال بارگذاری...</div>;
+
+  const noMenus = !menus?.length;
+  if (noMenus && !permissions.isGlobalAccess)
+    return <Navigate to="/no-access" replace />;
 
   return <Outlet />;
 }

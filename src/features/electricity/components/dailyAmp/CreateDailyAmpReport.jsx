@@ -7,6 +7,8 @@ import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import { useCreateDailyAmpReport } from '../../Api/dailyAmp/dailyAmp';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
+import { toast } from 'react-toastify';
 
 const deviseList = [
   { id: 1, name: 'الکتروپمپ وکیوم 1' },
@@ -48,21 +50,24 @@ const deviseList = [
   { id: 37, name: 'فن کولینگ کانوایر ماشین IS خط 3 اصلی' },
   { id: 38, name: 'فن کولینگ کانوایر ماشین IS خط 3 رزرو' },
 ];
+
+const createInitialForm = {
+  companyId: '',
+  reportDate: '',
+  shiftName: '',
+  personnelName: '',
+  shiftFlags: 2,
+  items: deviseList.map((device) => ({
+    deviceName: device.name,
+    frequency: 0,
+    power: 0,
+    t: 0,
+    s: 0,
+    r: 0,
+  })),
+};
 function CreateDailyAmpReport({ openCreateModal, setOpenCreateModal }) {
-  const [form, setForm] = useState({
-    reportDate: '',
-    shiftName: '',
-    personnelName: '',
-    shiftFlags: 2,
-    items: deviseList?.map((device) => ({
-      deviceName: device?.name,
-      frequency: 0,
-      power: 0,
-      t: 0,
-      s: 0,
-      r: 0,
-    })),
-  });
+  const [form, setForm] = useState(createInitialForm);
 
   const handleItemChange = (index, field, value) => {
     setForm((prev) => {
@@ -72,41 +77,68 @@ function CreateDailyAmpReport({ openCreateModal, setOpenCreateModal }) {
     });
   };
 
-  const { data: profile } = useGetProfile();
+  const { data: pro, isLoading: profileLoading } = useGetFullAccess();
+  const findCompany = pro?.companies?.find((c) => c.id);
 
   useEffect(() => {
-    if (profile?.data?.currentShift?.shiftName) {
+    if (pro?.currentShift?.name) {
       setForm((p) => ({
         ...p,
-        shiftName: profile?.data?.currentShift?.shiftName,
+        shiftName: pro?.currentShift?.name,
       }));
     }
 
-    if (profile?.data?.fullName) {
+    if (pro?.firstName || pro?.lastName) {
       setForm((p) => ({
         ...p,
-        personnelName: profile?.data?.fullName,
+        personnelName: `${pro?.firstName ?? ''} ${pro?.lastName ?? ''}`.trim(),
       }));
     }
-  }, [profile]);
+  }, [pro]);
+
+  const resetForm = () => {
+    setForm({
+      ...createInitialForm,
+      shiftName: pro?.currentShift?.name ?? '',
+      personnelName: `${pro?.firstName ?? ''} ${pro?.lastName ?? ''}`.trim(),
+    });
+  };
 
   const closeHandler = () => {
     setOpenCreateModal(false);
+    resetForm();
   };
 
   const createReport = useCreateDailyAmpReport();
 
   const submitHandler = (e) => {
     e.preventDefault();
-    createReport.mutate(form, {
+
+    if (!form.reportDate) {
+      toast.warning('تاریخ گزارش را انتخاب کنید');
+      return;
+    }
+
+    if (profileLoading || !pro) {
+      toast.warning('اطلاعات کاربر هنوز بارگذاری نشده.لطفا صبر کنید');
+      return;
+    }
+
+    const payload = {
+      ...form,
+      companyId: findCompany?.id,
+      personnelName: `${pro?.firstName ?? ''} ${pro?.lastName ?? ''}`.trim(),
+      shiftName: pro?.currentShift?.name,
+    };
+    createReport.mutate(payload, {
       onSuccess: () => {
-        setOpenCreateModal(false);
+        closeHandler();
       },
     });
   };
   return (
     <div
-      className={`fixed inset-0 z-50 flex h-screen items-center justify-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
         openCreateModal
           ? 'pointer-events-auto opacity-100 '
           : 'pointer-events-none opacity-0'
@@ -117,7 +149,7 @@ function CreateDailyAmpReport({ openCreateModal, setOpenCreateModal }) {
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] w-[1000px] max-w-[95vw] transform flex-col rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-2xl:scale-95 max-md:h-180 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openCreateModal
             ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
@@ -153,16 +185,17 @@ function CreateDailyAmpReport({ openCreateModal, setOpenCreateModal }) {
               <DatePicker
                 calendar={persian}
                 locale={persian_fa}
+                value={form.reportDate ? new Date(form.reportDate) : ''}
                 placeholder="تاریخ ثبت گزارش"
                 format="YYYY/MM/DD"
                 calendarPosition="bottom-center"
                 onChange={(value) => {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     reportDate: value
                       ? value.toDate().toISOString().split('T')[0]
                       : '',
-                  });
+                  }));
                 }}
                 inputClass="w-full rounded-xl bg-white/10 p-3 font-[Samim] text-[18px] text-white outline-none"
               />
@@ -387,11 +420,18 @@ function CreateDailyAmpReport({ openCreateModal, setOpenCreateModal }) {
           </div>
         </form>
 
-        <div>
+        <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
           <button
             type="submit"
             form="dailyAmpForm"
-            className="w-full cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-[1.01]"
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ثبت گزارش
           </button>

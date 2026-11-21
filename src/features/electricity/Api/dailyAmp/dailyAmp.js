@@ -7,15 +7,15 @@ import { toast } from 'react-toastify';
 const BASE_API = `http://localhost:5273/api/DailyAmperageReport`;
 
 // GET Dailyamp
-export const useGetDailyAmpReport = ({ search, page, pageSize }) => {
+export const useGetDailyAmpReport = ({ search, page, pageSize, companyId }) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['amp', token, search, page, pageSize],
+    queryKey: ['amp', token, search, page, pageSize, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { search, page, pageSize },
+        params: { search, page, pageSize, companyId },
       });
       return res.data;
     },
@@ -24,14 +24,15 @@ export const useGetDailyAmpReport = ({ search, page, pageSize }) => {
 };
 
 // Get DailyAmpAll
-export const useGetDailyAmpReportAll = () => {
+export const useGetDailyAmpReportAll = ({ companyId }) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReport = useQuery({
-    queryKey: ['amp', token],
+    queryKey: ['amp', token, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/simple`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { companyId },
       });
       return res.data;
     },

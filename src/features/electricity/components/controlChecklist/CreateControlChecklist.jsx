@@ -7,7 +7,11 @@ import { useGetProfile } from '../../../../hooks/profile/profile';
 import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
+
 import { useCreateControlChecklistReport } from '../../Api/controlChecklist/controlChecklist';
+import { IoCloseSharp } from 'react-icons/io5';
+import { useGetFullAccess } from '../../../../hooks/auth/authApi';
+import { toast } from 'react-toastify';
 
 const deviseList = [
   { id: 1, name: 'کولرگازی فن سوپر ژرنال A', location: 'داخل اتاق توزیع' },
@@ -84,8 +88,26 @@ const deviseList = [
   },
 ];
 
+const initialState = {
+  companyId: '',
+  checklistDate: '',
+  shiftName: '',
+  personnelName: '',
+  shiftFlags: 2,
+  description: '',
+  items: deviseList?.map((d) => ({
+    equipmentName: d?.name,
+    location: d?.location,
+    temperature: 0,
+    ampere: 0,
+    visualInspection: '',
+    setpoint: '',
+  })),
+};
+
 function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
   const [form, setForm] = useState({
+    companyId: '',
     checklistDate: '',
     shiftName: '',
     personnelName: '',
@@ -109,26 +131,39 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
     });
   };
 
-  const { data: profile } = useGetProfile();
+  const { data: profile, isLoading: profileLoading } = useGetFullAccess();
+
+  const findCompany = profile?.companies?.find((c) => c.id);
 
   useEffect(() => {
-    if (profile?.data?.currentShift?.shiftName) {
+    if (profile?.currentShift?.name) {
       setForm((p) => ({
         ...p,
-        shiftName: profile?.data?.currentShift?.shiftName,
+        shiftName: profile?.currentShift?.name,
       }));
     }
 
-    if (profile?.data?.fullName) {
+    if (profile?.firstName || profile?.lastName) {
       setForm((p) => ({
         ...p,
-        personnelName: profile?.data?.fullName,
+        personnelName:
+          `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
       }));
     }
   }, [profile]);
 
+  const resetForm = () => {
+    setForm({
+      ...initialState,
+      shiftName: profile?.currentShift?.name ?? '',
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+    });
+  };
+
   const closeHandler = () => {
     setOpenCreateModal(false);
+    resetForm();
   };
 
   const createReport = useCreateControlChecklistReport();
@@ -136,7 +171,25 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
   const submitHandler = (e) => {
     e.preventDefault();
 
-    createReport.mutate(form, {
+    if (!form.checklistDate) {
+      toast.warning('تاریخ گزارش را انتخاب کنید');
+      return;
+    }
+
+    if (profileLoading || !profile) {
+      toast.warning('اطلاعات کاربر هنوز بارگذاری نشده.لطفا صبر کنید');
+      return;
+    }
+
+    const payload = {
+      ...form,
+      companyId: findCompany?.id,
+      personnelName:
+        `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim(),
+      shiftName: profile?.currentShift?.name,
+    };
+
+    createReport.mutate(payload, {
       onSuccess: () => {
         setOpenCreateModal(false);
       },
@@ -144,7 +197,7 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
   };
   return (
     <div
-      className={`fixed inset-0 z-50 flex h-screen items-center justify-center p-4 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex h-screen items-center justify-center overflow-auto p-4 transition-opacity duration-300 ${
         openCreateModal
           ? 'pointer-events-auto opacity-100 '
           : 'pointer-events-none opacity-0'
@@ -155,7 +208,7 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
         onClick={closeHandler}
       />
       <div
-        className={`relative flex max-h-[90vh] w-[1000px] max-w-[95vw] transform flex-col rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 max-2xl:scale-95 max-md:h-180 max-md:overflow-auto ${
+        className={`no-scrollbar relative flex max-h-[90vh] w-[1000px] transform flex-col overflow-auto rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] px-6 py-4 text-white shadow-2xl transition-all duration-300 ${
           openCreateModal
             ? ' translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
@@ -166,17 +219,14 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
           <p className="pr-1.5 font-[SamimBold] text-[20px]">
             ایجاد گزارش جدید
           </p>
-          <button
+          <p
             onClick={closeHandler}
-            className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+            className="5xl:size-12 5xl:text-[35px] flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
           >
-            <img
-              src={close}
-              alt="close"
-              width={20}
-              className="transition-all delay-100 duration-100 ease-in-out hover:scale-110"
-            />
-          </button>
+            <span>
+              <IoCloseSharp />
+            </span>
+          </p>
         </div>
 
         <form
@@ -346,7 +396,6 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
                     readOnly
                     className="mt-1 rounded-xl bg-white/10 p-3 font-[Samim] text-white outline-none"
                   />
-                  
                 </label>
                 <label
                   htmlFor="temperature"
@@ -430,11 +479,18 @@ function CreateControlChecklist({ openCreateModal, setOpenCreateModal }) {
             />
           </label>
         </form>
-        <div>
+        <div className="col-span-3 mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeHandler}
+            className="cursor-pointer rounded-xl bg-white/10 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-white/20"
+          >
+            انصراف
+          </button>
           <button
             type="submit"
             form="dailyAmpForm"
-            className="w-full cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-[1.01]"
+            className="cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ثبت گزارش
           </button>

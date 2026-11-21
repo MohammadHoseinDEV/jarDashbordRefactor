@@ -1,8 +1,8 @@
 import React from 'react';
 
-import logo from '../../../../../assets/images/logo.png';
 import close from '../../../../../assets/images/close.png';
 import { normalizeTime, toShamsi } from '../../../../../Time/date';
+import { LuPencil } from 'react-icons/lu';
 
 function FormLineChangeCheckListJsx({
   selectedCheckList,
@@ -11,17 +11,18 @@ function FormLineChangeCheckListJsx({
   setOpenCode,
   setPassword,
   handleOpenSignatureModal,
-  selectedShiftSupervisor,
-  canSignShiftSupervisor,
-  selectedOperationSupervisor,
-  canSignOperationsSupervisor,
+  logoSrc,
+  canSignExecutor,
+  executorSignature,
+  canSignSuperVisor,
+  supervisorSignature,
 }) {
   return (
     <div>
       {/* Header */}
       <div className="grid grid-cols-5">
         <div className="flex items-center justify-center border-b border-l">
-          <img src={logo} alt="logo" width={90} />
+          <img src={logoSrc} alt="logo" className="h-12 w-22 object-contain" />
         </div>
         <div className="col-span-3 flex items-center justify-center border-b border-l">
           <h1 className="font-[SamimBold] text-[18px]">
@@ -53,7 +54,7 @@ function FormLineChangeCheckListJsx({
         </div>
         <div className="flex items-center justify-center space-x-1">
           <p className="font-[SamimBold]">شیفت :</p>
-          <p>{selectedCheckList?.description}</p>
+          <p>{selectedCheckList?.shiftName}</p>
         </div>
         <div className="flex items-center justify-center space-x-1">
           <p className="font-[SamimBold]">تاریخ :</p>
@@ -99,7 +100,7 @@ function FormLineChangeCheckListJsx({
           </tbody>
         </table>
       </div>
-      <div className="grid grid-cols-2 pt-6">
+      {/* <div className="grid grid-cols-2 pt-6">
         <div className="flex items-center space-x-1 pr-1">
           <p className="flex items-center font-bold">
             امضاءسرشیفت واحد بهره بردار :
@@ -146,6 +147,67 @@ function FormLineChangeCheckListJsx({
                 عدم دسترسی
               </span>
             )}
+          </p>
+        </div>
+      </div> */}
+
+      <div className="m-2 flex items-center justify-around gap-5 text-center">
+        <div
+          className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 px-10 ${selectedCheckList?.isShiftSupervisorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+        >
+          <p className="space-x-1 text-xs">
+            <span>امضاءسرشیفت واحد بهره بردار :</span>
+            <span className="font-[Vazirmatn] font-semibold">
+              {selectedCheckList?.shiftSupervisorSignedByFullName}
+            </span>
+          </p>
+          <p>
+            {executorSignature ? (
+              <img
+                src={`data:image/png;base64,${executorSignature}`}
+                alt="signature"
+                className="absolute right-1/3 bottom-0 h-20 object-contain"
+              />
+            ) : canSignExecutor &&
+              !selectedCheckList?.isShiftSupervisorSigned ? (
+              <button
+                onClick={() => handleOpenSignatureModal('shift-supervisor')}
+                className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
+              >
+                <span>ثبت امضاء</span>
+                <LuPencil />
+              </button>
+            ) : null}
+          </p>
+        </div>
+        <div
+          className={`relative flex h-20 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 px-10 ${selectedCheckList?.isOperationsSupervisorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+        >
+          <p className="text-xs">
+            <span>امضاء سرپرست واحد عملیاتی :</span>
+            <span className="font-[Vazirmatn] font-semibold">
+              {selectedCheckList?.operationsSupervisorSignedByFullName}
+            </span>
+          </p>
+          <p>
+            {supervisorSignature ? (
+              <img
+                src={`data:image/png;base64,${supervisorSignature}`}
+                alt="signature"
+                className="absolute bottom-0 left-1/3 h-20 object-contain"
+              />
+            ) : canSignSuperVisor &&
+              !selectedCheckList?.isOperationsSupervisorSigned ? (
+              <button
+                onClick={() =>
+                  handleOpenSignatureModal('operations-supervisor')
+                }
+                className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
+              >
+                <span>ثبت امضاء</span>
+                <LuPencil />
+              </button>
+            ) : null}
           </p>
         </div>
       </div>

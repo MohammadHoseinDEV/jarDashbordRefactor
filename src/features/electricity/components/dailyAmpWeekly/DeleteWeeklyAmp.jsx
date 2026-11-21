@@ -1,7 +1,7 @@
 import React from 'react';
 
-import close from '../../../../assets/images/close.png';
 import { useDeleteWeeklyAmp } from '../../Api/dailyAmpWeekly/WeeklyAmp';
+import { IoCloseSharp } from 'react-icons/io5';
 
 function DeleteWeeklyAmp({
   openDeleteModal,
@@ -12,7 +12,6 @@ function DeleteWeeklyAmp({
     setOpenDeleteModal(false);
   };
 
-  
   const deleteReports = useDeleteWeeklyAmp();
   return (
     <div
@@ -27,7 +26,7 @@ function DeleteWeeklyAmp({
         onClick={closeHandler}
       />
       <div
-        className={`relative transform rounded-[15px] bg-linear-to-bl from-black to-gray-600 p-6 text-white shadow-2xl transition-all duration-300 ${
+        className={`relative w-full transform rounded-[15px] bg-linear-to-b from-[#1c1c1c] to-[#0c0c0c] p-6 text-white shadow-2xl transition-all duration-300 md:w-fit ${
           openDeleteModal
             ? 'translate-y-0 scale-100 opacity-100'
             : '-translate-y-10 scale-0 opacity-0'
@@ -36,17 +35,14 @@ function DeleteWeeklyAmp({
         <div className="flex items-center justify-between">
           <h2 className="font-[SamimBold] text-[20px]">حذف گزارش</h2>
 
-          <button
+          <p
             onClick={closeHandler}
-            className="cursor-pointer rounded-[10px] bg-white/80 p-1.5 text-[30px] text-red-500 transition-all delay-100 duration-75 ease-in-out hover:bg-black"
+            className="4xl:text-3xl flex size-7 cursor-pointer items-center justify-center rounded-lg text-[16px] text-white/50 transition-all delay-75 duration-100 hover:bg-white/10 hover:text-white"
           >
-            <img
-              src={close}
-              alt="close"
-              width={20}
-              className="transition-all delay-100 duration-100 ease-in-out hover:scale-110"
-            />
-          </button>
+            <span>
+              <IoCloseSharp />
+            </span>
+          </p>
         </div>
         <div>
           <h4 className="pt-5 font-[SamimBold]">
@@ -66,7 +62,7 @@ function DeleteWeeklyAmp({
               });
             }}
           >
-            <button className="cursor-pointer rounded-xl bg-linear-to-bl from-red-500 to-red-800 px-4 py-2 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105 hover:bg-red-500/60">
+            <button className="4xl:text-xl cursor-pointer rounded-xl bg-red-700/95 px-5 py-2 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50">
               حذف
             </button>
           </div>

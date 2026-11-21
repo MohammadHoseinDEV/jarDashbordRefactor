@@ -6,30 +6,53 @@ import { toast } from 'react-toastify';
 
 const BASE_API = `http://localhost:5273/api/UPSBatteryVoltageReading`;
 
-export const useGetElectricityReport = ({ search, page, pageSize }) => {
+export const useGetElectricityReport = ({
+  search,
+  page,
+  pageSize,
+  companyId,
+  isExecutorSigned,
+  isSupervisorSigned,
+} = {}) => {
   const { token } = useSelector((state) => state.auth);
 
-  const getReport = useQuery({
-    queryKey: ['electricity', token, search, page, pageSize],
+  return useQuery({
+    queryKey: [
+      'electricity',
+      token,
+      search,
+      page,
+      pageSize,
+      companyId,
+      isExecutorSigned,
+      isSupervisorSigned,
+    ],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { search, page, pageSize },
+        params: {
+          search,
+          page,
+          pageSize,
+          companyId,
+          isExecutorSigned,
+          isSupervisorSigned,
+        },
       });
       return res.data;
     },
   });
-  return getReport;
 };
 
-export const useGetElectricityReportAll = () => {
+export const useGetElectricityReportAll = ({ companyId } = {}) => {
   const { token } = useSelector((state) => state.auth);
 
   const getReportAll = useQuery({
-    queryKey: ['electricity', token],
+    queryKey: ['electricity', token, companyId],
     queryFn: async () => {
       const res = await axios.get(`${BASE_API}/simple`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { companyId },
       });
       return res.data;
     },
@@ -64,8 +87,8 @@ export const useUpdateElectricityReport = () => {
   const queryClient = useQueryClient();
 
   const updateReport = useMutation({
-    mutationFn: async ({ id, form }) => {
-      const res = await axios.put(`${BASE_API}/${id}`, form, {
+    mutationFn: async ({ id, data }) => {
+      const res = await axios.put(`${BASE_API}/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
@@ -109,26 +132,24 @@ export const useDeleteElectricityReport = () => {
 
 export const useCreateSignExecutor = () => {
   const { token } = useSelector((state) => state.auth);
-  const queryClient = useQueryClient();
+  const queryclient = useQueryClient();
 
-  const createSign = useMutation({
+  return useMutation({
     mutationFn: async ({ id, signaturePassword }) => {
-      const res = await axios.post(
+      return await axios.post(
         `${BASE_API}/${id}/sign/executor`,
         { signaturePassword },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `bearer ${token}` } }
       );
-      return res.data;
     },
     onSuccess: () => {
       toast.success('امضاء تهیه کننده با موفقیت ثبت شد');
-      queryClient.invalidateQueries({ queryKey: ['electricity', token] });
+      queryclient.invalidateQueries({ queryKey: ['electricity'] });
     },
     onError: (e) => {
       toast.error(e.response.data.message || 'خطا در ثبت امضاء تهیه کننده');
     },
   });
-  return createSign;
 };
 
 export const useCreateSignSupervisor = () => {
@@ -146,7 +167,7 @@ export const useCreateSignSupervisor = () => {
     },
     onSuccess: () => {
       toast.success('امضاء سرپرست با موفقیت ثبت شد');
-      queryClient.invalidateQueries({ queryKey: ['electricity', token] });
+      queryClient.invalidateQueries({ queryKey: ['electricity'] });
     },
     onError: (e) => {
       toast.error(e.response.data.message || 'خطا در ثبت امضاء سرپرست');

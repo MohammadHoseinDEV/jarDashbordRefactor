@@ -4,7 +4,7 @@
 @theme {
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
-  --breakpoint-lg: 1178px;
+  --breakpoint-lg: 1100px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
   --breakpoint-3xl: 1792px;
@@ -16,11 +16,8 @@
   --breakpoint-9xl: 4000px;
   --breakpoint-10xl: 4500px;
   --breakpoint-11xl: 5000px;
-  /* ------------- */
-  /* heigth */
-
-  
 }
+
 /* text-xs      → 0.75rem  (12px)
 text-sm      → 0.875rem (14px)
 text-base    → 1rem     (16px) ← پیش‌فرض
@@ -55,25 +52,26 @@ input[type='number']::-webkit-inner-spin-button {
 
 @layer components{
   .input-text{
-@apply 5xl:text-[20px]  5xl:placeholder:text-[20px] border border-white/10 bg-white/5 w-full rounded-xl  p-3 font-[Samim] text-[18px] text-white outline-none placeholder:font-[Samim] placeholder:text-[12px] focus:font-[Samim]
+@apply 4xl:text-[20px]  4xl:placeholder:text-[20px] border border-white/10 bg-white/5 w-full rounded-xl  p-3 font-[Samim] text-[18px] text-white outline-none placeholder:font-[Vazirmatn] placeholder:text-[12px] focus:font-[Vazirmatn]
   }
   .input-number{
-@apply 5xl:text-[20px] 5xl:placeholder:text-[20px] w-full rounded-xl  border border-white/10 bg-white/5  p-3 font-[AvenirLTProMedium] text-[18px] text-white outline-none placeholder:font-[AvenirLTProMedium] placeholder:text-[12px] focus:font-[AvenirLTProMedium]
+@apply 4xl:text-[20px] 4xl:placeholder:text-[20px] w-full rounded-xl  border border-white/10 bg-white/5  p-3 font-[AvenirLTProMedium] text-[18px] text-white outline-none placeholder:font-[AvenirLTProMedium] placeholder:text-[12px] focus:font-[AvenirLTProMedium]
    
   }
    .input-date{
-      @apply  w-full rounded-xl 5xl:text-[20px] 5xl:placeholder:text-[20px] bg-white/10 p-3 text-[18px]  text-white outline-none placeholder:font-[SamimBold] 
+      @apply  w-full rounded-xl 4xl:text-[20px] 4xl:placeholder:text-[20px] bg-white/5 p-3 text-[18px]  text-white outline-none placeholder:font-[SamimBold] 
     }
 
     .btn-submit{
-      @apply 5xl:text-[25px] col-span-4 my-2 cursor-pointer rounded-lg bg-linear-to-tl from-green-900 to-green-500 px-10 py-3 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105 hover:rounded-xl
+      @apply cursor-pointer rounded-xl bg-orange-700/95 px-5 py-3 font-[Vazirmatn] text-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50
     }
 
+
     .add-line{
-      @apply 5xl:text-[20px] w-fit cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-2 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105
+      @apply 4xl:text-[20px] w-fit cursor-pointer rounded-xl bg-linear-to-tl from-green-900 to-green-500 px-4 py-2 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105
     }
     .remove-line{
-      @apply  5xl:text-[20px] cursor-pointer rounded-xl bg-linear-to-bl from-red-500 to-red-800 px-4 py-2 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105 hover:bg-red-500/60
+      @apply  4xl:text-[20px] cursor-pointer rounded-xl bg-linear-to-bl from-red-500 to-red-800 px-4 py-2 font-[Samim] transition-all delay-100 duration-150 ease-in-out hover:scale-105 hover:bg-red-500/60
     }
   
 }

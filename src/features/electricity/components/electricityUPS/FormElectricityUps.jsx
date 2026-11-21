@@ -3,7 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import logo from '../../../../assets/images/logo.png';
 import close from '../../../../assets/images/close.png';
 import { useGetMenu } from '../../../../hooks/menu/menuApi';
-import { useGetPermissionSignature } from '../../../../hooks/user/userApi';
+import {
+  useGetImageSign,
+  useGetPermissionSignature,
+} from '../../../../hooks/user/userApi';
 import { useSelector } from 'react-redux';
 import { findMenu } from '../../../../utils/rbac';
 import { useGetSignatureId } from '../../../../hooks/Signature/Signature';
@@ -13,6 +16,14 @@ import {
   useCreateSignExecutor,
   useCreateSignSupervisor,
 } from '../../Api/electricityUPS/electricityUps';
+import { useGetCompanyLogo } from '../../../../hooks/company/companiApi';
+import { useSignatureAccess } from '../../../../hooks/userSignatureAccess';
+import { MENU_URL } from '../../../../permission/menuKeys';
+import { LuPencil } from 'react-icons/lu';
+
+const GROUP_COLS = 'grid grid-cols-[36px_1fr_1fr]';
+
+const show = (v) => (v === null || v === undefined || v === '' ? '' : v);
 
 function FormElectricityUps({
   openFormReport,
@@ -56,66 +67,34 @@ function FormElectricityUps({
     setOpenCode(true);
   };
   // ----------------------------------------
-  const { data: menu } = useGetMenu();
-  const upsMenu = findMenu(menu?.menus ?? [], 'upsBatteryVoltage-report');
-  const menuId = upsMenu?.id;
 
-  const { data: permission } = useGetPermissionSignature(userInfo?.userId, {
-    enabled: !!userInfo?.userId && !!menuId && openFormReport,
-  });
-
-  const cansign = permission?.data?.some(
-    (p) => p.menuId === menuId && p.canSignature === true
+  // --------------------------------------------------------
+  // Logo
+  const { data: companyLogo } = useGetCompanyLogo(
+    selectedReport?.companyId,
+    openFormReport && !!selectedReport?.companyId
   );
-  // ----------------------------------------
-  const { data: signeExecutor } = useGetSignatureId(
+
+  const logoSrc =
+    companyLogo?.success && companyLogo?.imageBase64
+      ? `data:${companyLogo.contentType};base64,${companyLogo.imageBase64}`
+      : logo;
+  // --------------------------------------------------------
+
+  const { canSign } = useSignatureAccess(MENU_URL.UPS_BATTERY_VOLTAGE_REPORT);
+
+  const canSignExecutor = canSign('executor');
+  const canSignSuperVisor = canSign('supervisor');
+
+  const { data: signExecutor } = useGetImageSign(
     selectedReport?.executorSignedByUserId
   );
-  const { data: signSupervisor } = useGetSignatureId(
+  const { data: signSupervisor } = useGetImageSign(
     selectedReport?.supervisorSignedByUserId
   );
-  // ----------------------------------------
 
-  const { data: profile } = useGetProfile();
-
-  const isHandover = selectedReport?.createdBy === profile?.data?.id;
-
-  const canSignHandover = cansign && isHandover;
-
-  const isSupervisor = profile?.data?.companyRoles?.some(
-    (r) => r.roleId === '5e6bcab8-bb18-482f-9805-477ac64fa209'
-  );
-  // 5e6bcab8-bb18-482f-9805-477ac64fa209  سرپرست
-  // e8d691c5-827c-4c65-9d1a-14def8620ade  کارشناس فناوری
-
-  const canSignSupervisor = cansign && isSupervisor;
-
-  // ------------------------------------------------------
-
-  useEffect(() => {
-    if (
-      selectedReport?.isExecutorSigned === true &&
-      signeExecutor?.data?.signatureImageBase64
-    ) {
-      setSelectedExecutor(signeExecutor?.data?.signatureImageBase64);
-    } else {
-      setSelectedExecutor(null);
-    }
-
-    if (
-      selectedReport?.isSupervisorSigned === true &&
-      signSupervisor?.data?.signatureImageBase64
-    ) {
-      setSelectedSupervisor(signSupervisor?.data?.signatureImageBase64);
-    } else {
-      setSelectedSupervisor(null);
-    }
-  }, [
-    selectedReport?.isExecutorSigned,
-    selectedReport?.isSupervisorSigned,
-    signeExecutor,
-    signSupervisor,
-  ]);
+  const executorSignature = signExecutor?.data?.signatureImageBase64;
+  const supervisorSignature = signSupervisor?.data?.signatureImageBase64;
 
   const createSignExecutor = useCreateSignExecutor();
   const createSignSupervisor = useCreateSignSupervisor();
@@ -165,9 +144,9 @@ function FormElectricityUps({
         onClick={closeHandler}
       />
       <div
-        className={`relative transform rounded-[15px] bg-white p-2 text-white shadow-2xl transition-all duration-300 max-2xl:pb-0 print:scale-87! print:p-0 ${
+        className={`relative transform rounded-[15px] bg-white p-2 text-white shadow-2xl transition-all duration-300 print:scale-87! print:p-0 ${
           openFormReport
-            ? 'translate-y-0 scale-112 opacity-100 max-2xl:scale-90 max-xl:scale-75 max-md:scale-65 max-md:scale-y-90 print:shadow-none '
+            ? '4xl:scale-160 translate-y-0 scale-65 opacity-100 xl:scale-75 2xl:scale-100 print:shadow-none '
             : '-translate-y-10 scale-0 opacity-0'
         }`}
       >
@@ -177,14 +156,17 @@ function FormElectricityUps({
         >
           <div className="grid grid-cols-8 border-b">
             <div className="col-span-2 flex items-center justify-center border-l">
-              <img src={logo} alt="logo" width={115} />
+              <img
+                src={logoSrc}
+                alt="logo"
+                className="h-12 w-22 object-contain"
+              />
             </div>
             <div className="col-span-4 flex items-center justify-center border-l">
               <h1 className="font-[SamimBold] text-[20px]">
                 ولتاژگیری باطریهای UPS
               </h1>
             </div>
-
             <div className="col-span-2 flex flex-col justify-center pr-2">
               <p className="space-x-1 text-[11px]">
                 <span className="font-[SamimBold]">کد سند :</span>
@@ -232,41 +214,39 @@ function FormElectricityUps({
               </span>
             </p>
           </div>
-          <div className="mx-2 grid grid-cols-9 border-t bg-gray-500/40">
-            <div className="col-span-1 flex items-center justify-center border-r border-b border-l font-semibold">
-              <p>ردیف</p>
-            </div>
-            <div className="col-span-2 flex items-center justify-center border-b font-semibold">
-              <p>ولتاژ</p>
-            </div>
-            <div className="col-span-1 flex items-center justify-center border-r border-b border-l font-semibold">
-              <p>ردیف</p>
-            </div>
-            <div className="col-span-2 flex items-center justify-center border-b font-semibold">
-              <p>ولتاژ</p>
-            </div>
-            <div className="col-span-1 flex items-center justify-center border-r border-b border-l font-semibold">
-              <p>ردیف</p>
-            </div>
-            <div className="col-span-2 flex items-center justify-center border-b border-l font-semibold">
-              <p>ولتاژ</p>
-            </div>
+
+          <div className="mx-2 grid grid-cols-3 border-t border-l bg-gray-500/40 text-[12px]">
+            {[0, 1, 2].map((g) => (
+              <div key={g} className={GROUP_COLS}>
+                <p className="flex items-center justify-center border-r border-b border-l font-semibold">
+                  ردیف
+                </p>
+                <p className="flex items-center justify-center border-b font-semibold">
+                  ولتاژ A
+                </p>
+                <p className="flex items-center justify-center border-r border-b font-semibold">
+                  ولتاژ B
+                </p>
+              </div>
+            ))}
           </div>
-          <div>
-            <div className="mx-2 grid min-h-60 grid-cols-3 border-l">
-              {rows.map((m, index) => (
-                <div key={index} className="flex">
-                  {/* یا عرض مناسب دیگر */}
-                  <p className="col-span-1 flex w-[60px] items-center justify-center border-r border-b border-l font-[AvenirLTProBook]">
-                    {index + 1 || ''}
-                  </p>
-                  <span className="col-span-2 flex h-7 w-[119px] items-center justify-center border-b font-[AvenirLTProMedium]">
-                    {m?.voltage || ''}
-                  </span>
-                </div>
-              ))}
-            </div>
+
+          <div className="mx-2 grid min-h-60 grid-cols-3 border-l">
+            {rows.map((m, index) => (
+              <div key={index} className={GROUP_COLS}>
+                <p className="flex h-7 items-center justify-center border-r border-b border-l font-[AvenirLTProBook]">
+                  {index + 1}
+                </p>
+                <span className="flex h-7 items-center justify-center border-b font-[AvenirLTProMedium] text-[12px]">
+                  {show(m?.voltage)}
+                </span>
+                <span className="flex h-7 items-center justify-center border-r border-b font-[AvenirLTProMedium] text-[12px]">
+                  {show(m?.voltage1)}
+                </span>
+              </div>
+            ))}
           </div>
+
           <div className="m-2">
             <div className="grid grid-cols-9 border-t bg-gray-500/40">
               <p className="col-span-1 flex items-center justify-center border-r border-b border-l font-bold">
@@ -286,60 +266,68 @@ function FormElectricityUps({
                   {index + 1}
                 </span>
                 <span className="col-span-4 flex items-center justify-center border-b border-l font-[AvenirLTProMedium]">
-                  {m?.g1 || ''}
+                  {show(m?.g1)}
                 </span>
                 <span className="col-span-4 flex items-center justify-center border-b border-l font-[AvenirLTProMedium]">
-                  {m?.g2 || ''}
+                  {show(m?.g2)}
                 </span>
               </div>
             ))}
           </div>
-          <div className="m-2 flex justify-between px-2">
-            <div className="fixed bottom-30 flex">
-              <p className="text-[13px] font-bold">نام و امضاء تهیه کننده :</p>
-              <p className="">
-                {selectedExecutor ? (
+          <div className="mx-2 mt-5 grid grid-cols-2 justify-center gap-5 text-center">
+            <div
+              className={`relative flex h-30 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedReport?.isExecutorSigned ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+            >
+              <p className="space-x-1 text-xs">
+                <span>نام و امضاء تهیه کننده :</span>
+                <span className="font-[Vazirmatn] font-semibold">
+                  {selectedReport?.executorSignedByFullName}
+                </span>
+              </p>
+              <p>
+                {executorSignature ? (
                   <img
-                    src={`data:image/png;base64,${selectedExecutor}`}
+                    src={`data:image/png;base64,${executorSignature}`}
                     alt="signature"
-                    className="fixed top-155 right-30 h-35 w-40"
+                    className="absolute right-1/3 bottom-0 h-30 object-contain"
                   />
-                ) : canSignHandover ? (
+                ) : canSignExecutor && !selectedReport?.isExecutorSigned ? (
                   <button
                     onClick={() => handleOpenSignatureModal('executor')}
-                    className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                    className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                   >
-                    ثبت امضاء
+                    <span>ثبت امضاء</span>
+                    <LuPencil />
                   </button>
-                ) : (
-                  <span className="rounded-[10px] bg-red-500 p-1 text-[15px]">
-                    عدم دسترسی
-                  </span>
-                )}
+                ) : null}
               </p>
             </div>
-            <div className="fixed bottom-10 left-25 flex">
-              <p className="text-[13px] font-bold">نام و امضاء تایید کننده :</p>
+            <div
+              className={`relative flex h-30 cursor-progress flex-col items-center justify-center space-y-2 rounded-xl border border-black/30 ${selectedReport?.supervisorSignedByUserId ? 'border-green-500/15 bg-green-500/8 transition-all delay-150 duration-200 hover:bg-green-500/12' : 'bg-black/5 transition-all delay-100 duration-150 hover:bg-black/10'}`}
+            >
+              <p className="text-xs">
+                <span>نام و امضاء تایید کننده :</span>
+                <span className="font-[Vazirmatn] font-semibold">
+                  {selectedReport?.supervisorSignedByFullName}
+                </span>
+              </p>
               <p>
-                {selectedSupervisor ? (
+                {supervisorSignature ? (
                   <img
-                    src={`data:image/png;base64,${selectedSupervisor}`}
+                    src={`data:image/png;base64,${supervisorSignature}`}
                     alt="signature"
-                    width={180}
-                    className="fixed top-171 left-10"
+                    className="absolute bottom-0 left-1/3 h-30 object-contain"
                   />
-                ) : canSignSupervisor ? (
+                ) : canSignSuperVisor &&
+                  !selectedReport?.supervisorSignedByUserId ? (
                   <button
                     onClick={() => handleOpenSignatureModal('supervisor')}
-                    className="mr-3 cursor-pointer rounded-[10px] bg-linear-to-br from-cyan-400 to-black/10 p-2 transition-all delay-75 duration-100 ease-in-out hover:scale-110"
+                    className="flex cursor-pointer items-center space-x-2 rounded-xl border-r-6 border-r-red-500 bg-black/85 px-4 py-2 text-sm text-white transition-all delay-150 duration-200 hover:-translate-y-0.5 hover:bg-black"
                   >
-                    ثبت امضاء
+                    <span>ثبت امضاء</span>
+                    <LuPencil />
                   </button>
-                ) : (
-                  <span className="rounded-[10px] bg-red-500 p-1 text-[15px]">
-                    عدم دسترسی
-                  </span>
-                )}
+                ) : null}
               </p>
             </div>
           </div>
