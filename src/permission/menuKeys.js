@@ -60,4 +60,8 @@ export const MENU_URL = {
   CUSTOMER_MANAGEMENT: 'customer-management',
   SALES_TRANSFER: 'sales-transfer',
   LOADING_PRODUCTS: 'loading-products',
+
+  // productionEngineering
+
+  PROCESS_VALIDATION_INQUERY: 'process-validation',
 };

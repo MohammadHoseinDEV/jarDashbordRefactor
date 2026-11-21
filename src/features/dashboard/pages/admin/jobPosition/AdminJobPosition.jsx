@@ -32,7 +32,6 @@ function AdminJobPosition() {
     departmentId: '',
     companyId: '',
   });
-
   const [modal, setModal] = useState({ open: false, delete: false, job: null });
 
   const { canCreate, canEdit, canDelete, guardCreate, guardEdit, guardDelete } =

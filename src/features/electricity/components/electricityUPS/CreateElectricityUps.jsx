@@ -25,7 +25,6 @@ const initialState = {
   section2Items: [{ ...emptySection2Item }],
 };
 
-// مقدار خالی را به 0 و بقیه را به عدد تبدیل می‌کند (بک‌اند عدد می‌خواهد)
 const toNumber = (value) => {
   if (value === '' || value === null || value === undefined) return 0;
   const n = Number(value);
@@ -34,7 +33,7 @@ const toNumber = (value) => {
 
 function CreateElectricityUps({ setOpenCreateReport, openCreateReport }) {
   const [form, setForm] = useState(initialState);
-  const [dateKey, setDateKey] = useState(0); // برای ریست شدن DatePicker
+  const [dateKey, setDateKey] = useState(0);
 
   //   S1
   const addItems = () => {

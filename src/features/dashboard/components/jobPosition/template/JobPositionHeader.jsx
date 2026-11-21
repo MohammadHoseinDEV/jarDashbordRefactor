@@ -12,6 +12,7 @@ function JobPositionHeader({
   openCreate,
   totalCount,
 }) {
+  
   const [openFilterMobile, setOpenFilterMobile] = useState(false);
 
   return (

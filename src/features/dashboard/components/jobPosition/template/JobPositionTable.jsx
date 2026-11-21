@@ -12,6 +12,7 @@ function JobPositionTable({ job, canEdit, canDelete, openEdit, openDelete }) {
           <tr className="4xl:text-[25px] md:text-sm 2xl:text-base">
             <th className="4xl:py-5 rounded-tr-[10px] border-t border-r border-b border-white/30 py-3 max-2xl:py-2">
               ردیف
+              
             </th>
             <th className="border-t border-b border-white/30">کد جایگاه </th>
 

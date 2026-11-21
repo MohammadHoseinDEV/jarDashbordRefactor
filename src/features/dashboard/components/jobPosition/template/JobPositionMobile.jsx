@@ -11,6 +11,7 @@ function JobPositionMobile({ job, canEdit, canDelete, openEdit, openDelete }) {
           key={e.id}
           className="mx-2 mt-2 mb-5 rounded-[10px] border border-white/30"
         >
+          
           <div className="mx-1 my-3 flex items-center justify-between border-b border-white/50 px-2 pb-2">
             <div className="flex items-center space-x-3">
               <div className="flex flex-col space-y-0.5">

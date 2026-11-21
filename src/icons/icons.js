@@ -17,6 +17,7 @@ import { FaWrench } from 'react-icons/fa';
 import { GiPipes } from 'react-icons/gi';
 import {
   MdCheckCircle,
+  MdEngineering,
   MdFactory,
   MdProductionQuantityLimits,
   MdWarehouse,
@@ -59,6 +60,7 @@ export const MENU_ICON_MAP = {
   holding: FaHeading,
   department: FaD,
   systems: FaStripeS,
+  engineer: MdEngineering,
 };
 
 export const MENU_ICON_OPTIONS = [
@@ -92,4 +94,5 @@ export const MENU_ICON_OPTIONS = [
   { key: 'holding', label: 'هلدینگ' },
   { key: 'department', label: 'دپارتمان' },
   { key: 'systems', label: 'سیستم' },
+  { key: 'engineer', label: 'مهندسی تولید' },
 ];

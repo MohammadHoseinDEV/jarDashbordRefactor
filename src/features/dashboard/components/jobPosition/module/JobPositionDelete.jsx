@@ -16,6 +16,7 @@ function JobPositionDelete({ isModalOpen, selectedJob, onClose }) {
       },
     });
   };
+  
 
   return (
     <div

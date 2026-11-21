@@ -26,10 +26,8 @@ function JobPositionFormJsx({
     formState: { errors, isSubmitting },
   } = useFormContext();
 
-  
   const isActive = watch('isActive');
 
-  
   return (
     <div>
       <div className="flex items-center justify-between">

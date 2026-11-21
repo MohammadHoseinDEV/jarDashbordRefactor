@@ -174,6 +174,12 @@ const LoadingProducts = lazy(
     import('../features/products-cost/Pages/loadingProducts/LoadingProducts')
 );
 
+//  5261
+const ProcessValidation = lazy(
+  () =>
+    import('../features/productionEngineering/pages/processValidationInquiry/ProcessValidation')
+);
+
 const pagesMap = {
   [MENU_URL.ADMIN_MENUS]: AdminMenus,
   [MENU_URL.ADMIN_UNITS]: AdminUnits,
@@ -206,8 +212,6 @@ const pagesMap = {
   [MENU_URL.BIWEEKLY_AMP]: BiWeeklyAmpReport,
   [MENU_URL.LINE_CHANGE_CHECKLIST]: LineChangeChecklist,
 
-  
-  
   [MENU_URL.DEFINITION_OF_PRODUCT]: CreateProducts,
   [MENU_URL.FINAL_NOTIFICATION_OF_LINE_CHANGE]: FinalLineChange,
   [MENU_URL.PERSONNEL_REPORTS]: PersonnelReports,
@@ -228,6 +232,8 @@ const pagesMap = {
   [MENU_URL.CUSTOMER_MANAGEMENT]: CustomerManagment,
   [MENU_URL.SALES_TRANSFER]: SalesTransfer,
   [MENU_URL.LOADING_PRODUCTS]: LoadingProducts,
+  // Production Engineering
+  [MENU_URL.PROCESS_VALIDATION_INQUERY]: ProcessValidation,
 };
 
 export default function DynamicPage() {
